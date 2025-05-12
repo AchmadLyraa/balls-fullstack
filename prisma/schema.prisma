@@ -1,0 +1,149 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CUSTOMER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  PARTIAL
+  REFUNDED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER
+  CASH
+  QRIS
+}
+
+model User {
+  id          String    @id @default(uuid())
+  username    String    @unique
+  email       String    @unique
+  password    String
+  fullName    String
+  phoneNumber String?
+  role        UserRole  @default(CUSTOMER)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  bookings    Booking[]
+  loyaltyCard LoyaltyCard?
+  redemptions Redemption[]
+  payments    Payment[]
+}
+
+model Field {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  hourlyRate  Decimal   @db.Decimal(10, 2)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  bookings    Booking[]
+}
+
+model Booking {
+  id          String        @id @default(uuid())
+  userId      String
+  fieldId     String
+  startTime   DateTime
+  endTime     DateTime
+  totalAmount Decimal       @db.Decimal(10, 2)
+  status      BookingStatus @default(PENDING)
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  user        User          @relation(fields: [userId], references: [id])
+  field       Field         @relation(fields: [fieldId], references: [id])
+  payments    Payment[]
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  bookingId     String
+  userId        String
+  amount        Decimal       @db.Decimal(10, 2)
+  paymentMethod PaymentMethod
+  status        PaymentStatus @default(PENDING)
+  proofImageUrl String?
+  transactionId String?
+  paidAt        DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  booking       Booking       @relation(fields: [bookingId], references: [id])
+  user          User          @relation(fields: [userId], references: [id])
+}
+
+model LoyaltyCard {
+  id        String     @id @default(uuid())
+  userId    String     @unique
+  stamps    Int        @default(0)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  user      User       @relation(fields: [userId], references: [id])
+  redemptions Redemption[]
+}
+
+model Reward {
+  id          String      @id @default(uuid())
+  name        String
+  description String?
+  imageUrl    String?
+  stampsRequired Int
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  redemptions Redemption[]
+}
+
+model Redemption {
+  id          String    @id @default(uuid())
+  userId      String
+  loyaltyCardId String
+  rewardId    String
+  stampsUsed  Int
+  status      String    @default("PENDING") // PENDING, COMPLETED, CANCELLED
+  redeemedAt  DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id])
+  loyaltyCard LoyaltyCard @relation(fields: [loyaltyCardId], references: [id])
+  reward      Reward    @relation(fields: [rewardId], references: [id])
+}
