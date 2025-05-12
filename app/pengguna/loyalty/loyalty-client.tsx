@@ -15,31 +15,31 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { QrCode } from "lucide-react"
-import { getUserLoyaltyCard, getAvailableRewards, getUserRedemptions, redeemReward } from "@/app/actions/loyalty"
+import { getUserPoints, getLoyaltyPrograms, getUserRedemptions, redeemLoyaltyProgram } from "@/app/actions/loyalty"
 
 interface LoyaltyClientProps {
   user: UserJwtPayload
 }
 
 export default function LoyaltyClient({ user }: LoyaltyClientProps) {
-  const [selectedReward, setSelectedReward] = useState<any | null>(null)
+  const [selectedProgram, setSelectedProgram] = useState<any | null>(null)
   const [showQrCode, setShowQrCode] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [loyaltyCard, setLoyaltyCard] = useState<any>(null)
-  const [rewards, setRewards] = useState<any[]>([])
+  const [userPoints, setUserPoints] = useState<any>(null)
+  const [loyaltyPrograms, setLoyaltyPrograms] = useState<any[]>([])
   const [redemptionHistory, setRedemptionHistory] = useState<any[]>([])
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [cardData, rewardsData, redemptionsData] = await Promise.all([
-          getUserLoyaltyCard(),
-          getAvailableRewards(),
+        const [pointsData, programsData, redemptionsData] = await Promise.all([
+          getUserPoints(),
+          getLoyaltyPrograms(),
           getUserRedemptions(),
         ])
 
-        setLoyaltyCard(cardData)
-        setRewards(rewardsData || [])
+        setUserPoints(pointsData)
+        setLoyaltyPrograms(programsData || [])
         setRedemptionHistory(redemptionsData || [])
       } catch (error) {
         console.error("Error loading loyalty data:", error)
@@ -52,33 +52,33 @@ export default function LoyaltyClient({ user }: LoyaltyClientProps) {
     loadData()
   }, [])
 
-  const handleRedeemReward = async (reward: any) => {
-    if (!loyaltyCard || loyaltyCard.stamps < reward.stampsRequired) {
-      toast.error("You don't have enough stamps to redeem this reward")
+  const handleRedeemProgram = async (program: any) => {
+    if (!userPoints || userPoints.points < program.pointsRequired) {
+      toast.error("You don't have enough points to redeem this reward")
       return
     }
 
     try {
-      const result = await redeemReward(reward.id)
+      const result = await redeemLoyaltyProgram(program.id)
 
       if (result.success) {
-        setSelectedReward(reward)
+        setSelectedProgram(program)
         setShowQrCode(true)
 
-        // Update stamps count
-        setLoyaltyCard({
-          ...loyaltyCard,
-          stamps: loyaltyCard.stamps - reward.stampsRequired,
+        // Update points count
+        setUserPoints({
+          ...userPoints,
+          points: userPoints.points - program.pointsRequired,
         })
 
         // Add to redemption history
         setRedemptionHistory([
           {
             id: result.redemptionId,
-            reward: reward,
-            stampsUsed: reward.stampsRequired,
+            loyaltyProgram: program,
+            pointsUsed: program.pointsRequired,
             status: "PENDING",
-            redeemedAt: new Date().toISOString(),
+            redemptionDate: new Date().toISOString(),
           },
           ...redemptionHistory,
         ])
@@ -113,44 +113,44 @@ export default function LoyaltyClient({ user }: LoyaltyClientProps) {
           <div className="flex justify-between items-center mb-6">
             <div>
               <h1 className="text-2xl font-bold">Loyalty Card Digital</h1>
-              <p className="text-gray-500">Pilih hadiah dan tukar stampel kamu!</p>
+              <p className="text-gray-500">Pilih hadiah dan tukar poin kamu!</p>
             </div>
             <div className="bg-red-600 text-white px-4 py-2 rounded-lg">
-              <p className="text-sm">Your Stamps</p>
-              <p className="text-2xl font-bold">{loyaltyCard?.stamps || 0}</p>
+              <p className="text-sm">Your Points</p>
+              <p className="text-2xl font-bold">{userPoints?.points || 0}</p>
             </div>
           </div>
 
           <Tabs defaultValue="rewards" className="space-y-4">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="rewards">Available Rewards</TabsTrigger>
-              <TabsTrigger value="history">Gift History</TabsTrigger>
+              <TabsTrigger value="history">Redemption History</TabsTrigger>
             </TabsList>
 
             <TabsContent value="rewards" className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {rewards.map((reward) => (
-                  <Card key={reward.id} className="overflow-hidden">
+                {loyaltyPrograms.map((program) => (
+                  <Card key={program.id} className="overflow-hidden">
                     <img
-                      src={reward.imageUrl || "/placeholder.svg?height=200&width=200"}
-                      alt={reward.name}
+                      src={program.imageUrl || "/placeholder.svg?height=200&width=200"}
+                      alt={program.programName}
                       className="w-full h-40 object-cover"
                     />
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-medium">{reward.name}</h3>
+                        <h3 className="font-medium">{program.programName}</h3>
                         <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
-                          {reward.stampsRequired} Stamp
+                          {program.pointsRequired} Points
                         </span>
                       </div>
-                      <p className="text-sm text-gray-500 mb-2">{reward.description}</p>
+                      <p className="text-sm text-gray-500 mb-2">{program.description}</p>
                       <Button
-                        onClick={() => handleRedeemReward(reward)}
-                        disabled={!loyaltyCard || loyaltyCard.stamps < reward.stampsRequired}
+                        onClick={() => handleRedeemProgram(program)}
+                        disabled={!userPoints || userPoints.points < program.pointsRequired}
                         className="w-full mt-2 bg-red-600 hover:bg-red-700"
                         size="sm"
                       >
-                        {!loyaltyCard || loyaltyCard.stamps < reward.stampsRequired ? "Not Enough Stamps" : "Redeem"}
+                        {!userPoints || userPoints.points < program.pointsRequired ? "Not Enough Points" : "Redeem"}
                       </Button>
                     </CardContent>
                   </Card>
@@ -165,11 +165,11 @@ export default function LoyaltyClient({ user }: LoyaltyClientProps) {
                     <Card key={item.id}>
                       <CardContent className="p-4 flex justify-between items-center">
                         <div>
-                          <h3 className="font-medium">{item.reward.name}</h3>
-                          <p className="text-sm text-gray-500">{item.stampsUsed} Stamp</p>
+                          <h3 className="font-medium">{item.loyaltyProgram.programName}</h3>
+                          <p className="text-sm text-gray-500">{item.pointsUsed} Points</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm text-gray-500">{new Date(item.redeemedAt).toLocaleDateString()}</p>
+                          <p className="text-sm text-gray-500">{new Date(item.redemptionDate).toLocaleDateString()}</p>
                           <span
                             className={`px-2 py-1 rounded-full text-xs font-medium ${
                               item.status === "COMPLETED"

@@ -11,7 +11,6 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Borneo Anfield Loyalty System",
   description: "Booking and loyalty system for Borneo Anfield Stadium",
-    generator: 'v0.dev'
 }
 
 export default async function RootLayout({
@@ -22,7 +21,7 @@ export default async function RootLayout({
   const user = await getUser()
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           {children}

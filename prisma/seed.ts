@@ -1,4 +1,12 @@
-import { PrismaClient, UserRole, BookingStatus, PaymentStatus, PaymentMethod } from "@prisma/client"
+import {
+  PrismaClient,
+  UserRole,
+  BookingStatus,
+  PaymentStatus,
+  PaymentMethod,
+  SourceType,
+  RedemptionStatus,
+} from "@prisma/client"
 import { hash } from "bcryptjs"
 
 const prisma = new PrismaClient()
@@ -49,13 +57,16 @@ async function main() {
     },
   })
 
-  // Create loyalty card for customer
-  const loyaltyCard = await prisma.loyaltyCard.upsert({
-    where: { userId: customer.id },
-    update: { stamps: 15 },
+  // Create user points
+  const userPoints = await prisma.userPoint.upsert({
+    where: { id: "user-points-1" },
+    update: { points: 100 },
     create: {
+      id: "user-points-1",
       userId: customer.id,
-      stamps: 15,
+      points: 100,
+      isActive: true,
+      expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
     },
   })
 
@@ -64,7 +75,10 @@ async function main() {
     data: {
       name: "Field A (North Wing)",
       description: "Standard field with artificial grass",
+      capacity: 10,
       hourlyRate: 150000, // Rp 150,000 per hour
+      isAvailable: true,
+      notes: "Perfect for small teams",
     },
   })
 
@@ -72,58 +86,79 @@ async function main() {
     data: {
       name: "Field B (South Wing)",
       description: "Premium field with natural grass",
+      capacity: 22,
       hourlyRate: 200000, // Rp 200,000 per hour
+      isAvailable: true,
+      notes: "Full-size field for professional matches",
     },
   })
 
-  // Create rewards
-  const rewards = await Promise.all([
-    prisma.reward.create({
+  // Create loyalty programs
+  const loyaltyPrograms = await Promise.all([
+    prisma.loyaltyProgram.create({
       data: {
-        name: "25% Off Booking Hour",
+        programName: "25% Off Booking Hour",
         description: "Get 25% discount on your next booking",
-        stampsRequired: 7,
+        pointsRequired: 70,
+        isActive: true,
+        imageUrl: "/placeholder.svg?height=200&width=200",
       },
     }),
-    prisma.reward.create({
+    prisma.loyaltyProgram.create({
       data: {
-        name: "Fried Rice",
+        programName: "Fried Rice",
         description: "Free fried rice at BAS Cafe",
-        stampsRequired: 8,
+        pointsRequired: 80,
+        isActive: true,
+        imageUrl: "/placeholder.svg?height=200&width=200",
       },
     }),
-    prisma.reward.create({
+    prisma.loyaltyProgram.create({
       data: {
-        name: "Burger BAS",
+        programName: "Burger BAS",
         description: "Free burger at BAS Cafe",
-        stampsRequired: 6,
+        pointsRequired: 60,
+        isActive: true,
+        imageUrl: "/placeholder.svg?height=200&width=200",
       },
     }),
-    prisma.reward.create({
+    prisma.loyaltyProgram.create({
       data: {
-        name: "50% Off Booking Hour",
+        programName: "50% Off Booking Hour",
         description: "Get 50% discount on your next booking",
-        stampsRequired: 14,
+        pointsRequired: 140,
+        isActive: true,
+        imageUrl: "/placeholder.svg?height=200&width=200",
       },
     }),
-    prisma.reward.create({
+    prisma.loyaltyProgram.create({
       data: {
-        name: "50% Off Shoes Rent",
+        programName: "50% Off Shoes Rent",
         description: "Get 50% discount on shoes rental",
-        stampsRequired: 5,
+        pointsRequired: 50,
+        isActive: true,
+        imageUrl: "/placeholder.svg?height=200&width=200",
       },
     }),
   ])
 
   // Create a sample booking
+  const bookingDate = new Date("2025-05-12")
+  const startTime = new Date("2025-05-12T15:00:00Z")
+  const endTime = new Date("2025-05-12T17:00:00Z")
+  const duration = 2.0 // 2 hours
+
   const booking = await prisma.booking.create({
     data: {
       userId: customer.id,
       fieldId: fieldA.id,
-      startTime: new Date("2025-05-12T15:00:00Z"),
-      endTime: new Date("2025-05-12T17:00:00Z"),
-      totalAmount: 300000, // Rp 300,000 for 2 hours
+      bookingDate: bookingDate,
+      startTime: startTime,
+      endTime: endTime,
+      duration: duration,
+      amount: 300000, // Rp 300,000 for 2 hours
       status: BookingStatus.CONFIRMED,
+      notes: "Regular booking",
     },
   })
 
@@ -133,9 +168,29 @@ async function main() {
       bookingId: booking.id,
       userId: customer.id,
       amount: 300000,
-      paymentMethod: PaymentMethod.BANK_TRANSFER,
+      method: PaymentMethod.BANK_TRANSFER,
       status: PaymentStatus.PAID,
-      paidAt: new Date(),
+      transactionId: "TRX-" + Math.floor(Math.random() * 1000000),
+      paymentDate: new Date(),
+    },
+  })
+
+  // Create booking points
+  const bookingPoints = await prisma.bookingPoint.create({
+    data: {
+      userId: customer.id,
+      bookingId: booking.id,
+      points: 30, // 30 points for this booking
+    },
+  })
+
+  // Create point source record
+  const pointSource = await prisma.pointSource.create({
+    data: {
+      userId: customer.id,
+      sourceId: booking.id,
+      points: 30,
+      sourceType: SourceType.BOOKING,
     },
   })
 
@@ -143,10 +198,9 @@ async function main() {
   const redemption = await prisma.redemption.create({
     data: {
       userId: customer.id,
-      loyaltyCardId: loyaltyCard.id,
-      rewardId: rewards[0].id,
-      stampsUsed: 7,
-      status: "COMPLETED",
+      loyaltyProgramId: loyaltyPrograms[0].id,
+      pointsUsed: 70,
+      status: RedemptionStatus.COMPLETED,
     },
   })
 

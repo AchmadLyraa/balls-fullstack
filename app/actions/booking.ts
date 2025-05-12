@@ -1,6 +1,6 @@
 "use server"
 
-import { PrismaClient, BookingStatus } from "@prisma/client"
+import { PrismaClient, BookingStatus, type PaymentMethod, PaymentStatus, SourceType } from "@prisma/client"
 import { getUser } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { z } from "zod"
@@ -46,6 +46,7 @@ export async function createBooking(formData: FormData) {
     }
 
     // Parse date and times
+    const bookingDate = new Date(date)
     const startDateTime = new Date(`${date}T${startTime}:00`)
     const endDateTime = new Date(`${date}T${endTime}:00`)
 
@@ -83,9 +84,11 @@ export async function createBooking(formData: FormData) {
       data: {
         userId: user.id,
         fieldId,
+        bookingDate,
         startTime: startDateTime,
         endTime: endDateTime,
-        totalAmount,
+        duration: durationHours,
+        amount: totalAmount,
         status: BookingStatus.PENDING,
       },
     })
@@ -140,9 +143,9 @@ export async function uploadPaymentProof(formData: FormData) {
         bookingId,
         userId: user.id,
         amount: Number.parseFloat(amount),
-        paymentMethod: paymentMethod,
-        status: "PENDING",
-        proofImageUrl,
+        method: paymentMethod as PaymentMethod,
+        status: PaymentStatus.PENDING,
+        transactionId: "TRX-" + Math.floor(Math.random() * 1000000),
       },
     })
 
@@ -192,7 +195,7 @@ export async function cancelBooking(bookingId: string) {
     // Update payment status if exists
     await prisma.payment.updateMany({
       where: { bookingId },
-      data: { status: "CANCELLED" },
+      data: { status: PaymentStatus.CANCELLED },
     })
 
     return { success: true }
@@ -267,5 +270,81 @@ export async function getBookingById(bookingId: string) {
   } catch (error) {
     console.error("Error fetching booking:", error)
     return null
+  }
+}
+
+export async function completeBooking(bookingId: string) {
+  const user = await getUser()
+
+  if (!user || (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN")) {
+    return { success: false, error: "Unauthorized" }
+  }
+
+  try {
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: { field: true },
+    })
+
+    if (!booking) {
+      return { success: false, error: "Booking not found" }
+    }
+
+    // Update booking status
+    await prisma.booking.update({
+      where: { id: bookingId },
+      data: { status: BookingStatus.COMPLETED },
+    })
+
+    // Calculate points (10 points per hour)
+    const points = Math.round(Number(booking.duration) * 10)
+
+    // Add points to user
+    const userPoint = await prisma.userPoint.findFirst({
+      where: { userId: booking.userId },
+    })
+
+    if (userPoint) {
+      await prisma.userPoint.update({
+        where: { id: userPoint.id },
+        data: { points: userPoint.points + points },
+      })
+    } else {
+      await prisma.userPoint.create({
+        data: {
+          userId: booking.userId,
+          points: points,
+          isActive: true,
+          expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+        },
+      })
+    }
+
+    // Create booking points record
+    await prisma.bookingPoint.create({
+      data: {
+        userId: booking.userId,
+        bookingId: booking.id,
+        points: points,
+      },
+    })
+
+    // Create point source record
+    await prisma.pointSource.create({
+      data: {
+        userId: booking.userId,
+        sourceId: booking.id,
+        points: points,
+        sourceType: SourceType.BOOKING,
+      },
+    })
+
+    return { success: true }
+  } catch (error) {
+    if (error instanceof Error) {
+      return { success: false, error: error.message }
+    }
+
+    return { success: false, error: "An unknown error occurred" }
   }
 }

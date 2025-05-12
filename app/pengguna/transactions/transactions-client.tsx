@@ -117,11 +117,11 @@ export default function TransactionsClient({ user }: TransactionsClientProps) {
                   <TableRow key={transaction.id}>
                     <TableCell className="font-medium">{transaction.id.substring(0, 8)}</TableCell>
                     <TableCell>{transaction.field.name}</TableCell>
-                    <TableCell>{formatDate(transaction.startTime)}</TableCell>
+                    <TableCell>{formatDate(transaction.bookingDate)}</TableCell>
                     <TableCell>
                       {formatTime(transaction.startTime)} - {formatTime(transaction.endTime)}
                     </TableCell>
-                    <TableCell>Rp {transaction.totalAmount.toLocaleString()}</TableCell>
+                    <TableCell>Rp {transaction.amount.toLocaleString()}</TableCell>
                     <TableCell>
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(transaction.status)}`}
