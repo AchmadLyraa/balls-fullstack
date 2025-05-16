@@ -1,20 +1,20 @@
-import { PrismaClient } from "@prisma/client"
-import { cookies } from "next/headers"
-import { jwtVerify, SignJWT } from "jose"
-import type { UserRole } from "@prisma/client"
-import bcrypt from "bcryptjs"
+import { PrismaClient } from "@prisma/client";
+import { cookies } from "next/headers";
+import { jwtVerify, SignJWT } from "jose";
+import type { UserRole } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 // Secret key for JWT
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "your-secret-key-at-least-32-characters-long")
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "your-secret-key-at-least-32-characters-long");
 
 export type UserJwtPayload = {
-  id: string
-  email: string
-  role: UserRole
-  username: string
-}
+  id: string;
+  email: string;
+  role: UserRole;
+  username: string;
+};
 
 export async function signUp(
   username: string,
@@ -29,19 +29,19 @@ export async function signUp(
     where: {
       OR: [{ email }, { username }],
     },
-  })
+  });
 
   if (existingUser) {
     if (existingUser.email === email) {
-      throw new Error("Email already exists")
+      throw new Error("Email already exists");
     }
     if (existingUser.username === username) {
-      throw new Error("Username already exists")
+      throw new Error("Username already exists");
     }
   }
 
   // Hash password
-  const hashedPassword = await bcrypt.hash(password, 10)
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   // Create user
   const user = await prisma.user.create({
@@ -53,9 +53,9 @@ export async function signUp(
       phoneNumber,
       role,
     },
-  })
+  });
 
-  return user
+  return user;
 }
 
 export async function signIn(emailOrUsername: string, password: string) {
@@ -64,17 +64,17 @@ export async function signIn(emailOrUsername: string, password: string) {
     where: {
       OR: [{ email: emailOrUsername }, { username: emailOrUsername }],
     },
-  })
+  });
 
   if (!user) {
-    throw new Error("User not found")
+    throw new Error("User not found");
   }
 
   // Check if password is correct
-  const isPasswordValid = await bcrypt.compare(password, user.password)
+  const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if (!isPasswordValid) {
-    throw new Error("Invalid password")
+    throw new Error("Invalid password");
   }
 
   // Create JWT token
@@ -87,42 +87,30 @@ export async function signIn(emailOrUsername: string, password: string) {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("24h")
-    .sign(JWT_SECRET)
+    .sign(JWT_SECRET);
 
-  // Set cookie
-  cookies().set("auth-token", token, {
+  // Set cookie dengan await
+  const cookieStore = await cookies();
+  cookieStore.set("auth-token", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
     maxAge: 86400, // 24 hours
     path: "/",
-  })
+  });
 
   return {
     id: user.id,
     email: user.email,
     role: user.role,
     username: user.username,
-  }
+  };
 }
 
 export async function signOut() {
-  cookies().delete("auth-token")
-}
-
-export async function getUser() {
-  const token = cookies().get("auth-token")?.value
-
-  if (!token) {
-    return null
-  }
-
-  try {
-    const verified = await jwtVerify<UserJwtPayload>(token, JWT_SECRET)
-    return verified.payload
-  } catch (error) {
-    return null
-  }
+  // Delete cookie dengan await
+  const cookieStore = await cookies();
+  cookieStore.delete("auth-token");
 }
 
 export async function getUserById(id: string) {
@@ -139,7 +127,7 @@ export async function getUserById(id: string) {
       createdAt: true,
       updatedAt: true,
     },
-  })
+  });
 
-  return user
+  return user;
 }

@@ -1,9 +1,9 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/button"
 import type { UserJwtPayload } from "@/lib/auth"
 import { useAuth } from "@/lib/client-auth"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,

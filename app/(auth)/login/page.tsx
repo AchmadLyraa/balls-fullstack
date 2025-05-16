@@ -1,36 +1,39 @@
-'use client';
+"use client";
 
-import { signIn } from "next-auth/react";
-import { FormEvent } from "react";
+import { useState } from "react";
+import { loginUser } from "@/app/actions/auth";
+import { useRouter } from "next/navigation";
+import { getUser } from '@/app/actions/auth';
 
 export default function LoginPage() {
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const username = formData.get("username") as string;
-    const password = formData.get("password") as string;
-    const result = await signIn("credentials", {
-      username,
-      password,
-      redirect: false,
-    });
-    if (result?.error) {
-      console.error("Login failed:", result.error);
-      // Tampilkan pesan error ke pengguna`use client` diperlukan untuk menonaktifkan fitur ini
-    } else {
-      window.location.href = "/dashboard"; // Redirect ke dashboard setelah login berhasil
+  const [message, setMessage] = useState<string | null>(null);
+  const router = useRouter();
+
+  async function handleSubmit(formData: FormData) {
+    const result = await loginUser(formData);
+    setMessage(result.message);
+    if (result.success) {
+      const user = await getUser(); // Ambil data user untuk redirect berdasarkan role
+      if (user?.role === "CUSTOMER") {
+        router.push("/pengguna");
+      } else if (user?.role === "ADMIN") {
+        router.push("/admin");
+      } else if (user?.role === "SUPER_ADMIN") {
+        router.push("/super-admin");
+      }
     }
-  };
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="p-6 bg-white rounded shadow-md">
+      <div className="p-6 bg-white rounded shadow-md w-96">
         <h2 className="text-2xl font-bold mb-4">Login</h2>
-        <form onSubmit={handleSubmit}>
+        {message && <p className="mb-4 text-red-500">{message}</p>}
+        <form action={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Username</label>
+            <label className="block text-sm font-medium text-gray-700">Email atau Username</label>
             <input
-              name="username"
+              name="emailOrUsername" // Pastikan nama ini sesuai
               type="text"
               className="mt-1 p-2 w-full border rounded"
               required
@@ -39,7 +42,7 @@ export default function LoginPage() {
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">Password</label>
             <input
-              name="password"
+              name="password" // Pastikan nama ini sesuai
               type="password"
               className="mt-1 p-2 w-full border rounded"
               required
