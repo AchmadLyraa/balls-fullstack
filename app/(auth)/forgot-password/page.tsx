@@ -1,7 +1,6 @@
-import { redirectIfAuthenticated } from "@/lib/server-auth"
-import RegisterForm from "./register-form"
+import ForgotPasswordForm from "./components/forgot-password-form"
 
-export default async function RegisterPage() {
+export default async function ForgotPasswordPage() {
   await redirectIfAuthenticated()
 
   return (
@@ -10,15 +9,15 @@ export default async function RegisterPage() {
         <div className="text-center">
           <h1 className="text-3xl font-bold text-red-700">BALLS</h1>
           <h2 className="text-xl font-semibold">Borneo Anfield Loyalty System</h2>
-          <p className="mt-2 text-gray-600">Create Account</p>
-          <p className="text-sm text-gray-500">Sign up to get started</p>
+          <p className="mt-2 text-gray-600">Forgot Password</p>
+          <p className="text-sm text-gray-500">Enter your email to reset your password</p>
         </div>
 
-        <RegisterForm />
+        <ForgotPasswordForm />
 
         <div className="text-center mt-4">
           <p className="text-sm text-gray-600">
-            Already have an account?{" "}
+            Remember your password?{" "}
             <a href="/auth/login" className="text-red-700 hover:underline">
               Sign In
             </a>

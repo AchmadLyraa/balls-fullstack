@@ -1,18 +1,15 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Button } from "@/components/button"
+import { Input } from "@/components/input"
+import { Label } from "@/components/label"
 import { registerUser } from "@/app/actions/auth"
 import { useState } from "react"
 import { toast } from "sonner"
-import { UserRole } from "@prisma/client"
 
-export default function RegisterAdminForm() {
+export default function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [role, setRole] = useState<UserRole>(UserRole.ADMIN)
 
   async function handleSubmit(formData: FormData) {
     setIsLoading(true)
@@ -20,15 +17,13 @@ export default function RegisterAdminForm() {
 
     try {
       // Add the role to the form data
-      formData.append("role", role)
+      formData.append("role", "CUSTOMER")
 
       const result = await registerUser(formData)
 
       if (result && !result.success) {
         setError(result.error)
         toast.error(result.error)
-      } else {
-        toast.success("Admin registered successfully")
       }
     } catch (error) {
       setError("An unexpected error occurred. Please try again.")
@@ -62,21 +57,8 @@ export default function RegisterAdminForm() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="phoneNumber">No. Tlp Admin</Label>
-          <Input id="phoneNumber" name="phoneNumber" type="tel" placeholder="No. Tlp Admin" />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="role">Role</Label>
-          <Select defaultValue={role} onValueChange={(value) => setRole(value as UserRole)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select role" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={UserRole.ADMIN}>Admin</SelectItem>
-              <SelectItem value={UserRole.SUPER_ADMIN}>Super Admin</SelectItem>
-            </SelectContent>
-          </Select>
+          <Label htmlFor="phoneNumber">No. Telepon</Label>
+          <Input id="phoneNumber" name="phoneNumber" type="tel" placeholder="No. Telepon" />
         </div>
       </div>
 
@@ -84,6 +66,34 @@ export default function RegisterAdminForm() {
 
       <Button type="submit" className="w-full bg-red-700 hover:bg-red-800" disabled={isLoading}>
         {isLoading ? "Registering..." : "Register"}
+      </Button>
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-white px-2 text-gray-500">or continue with</span>
+        </div>
+      </div>
+
+      <Button type="button" variant="outline" className="w-full" disabled={isLoading}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="mr-2"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <path d="M17.13 17.13v-4.26l-3.2 3.2a4.33 4.33 0 0 1-6.13-6.13l3.2-3.2h-4.26" />
+        </svg>
+        Google
       </Button>
     </form>
   )
