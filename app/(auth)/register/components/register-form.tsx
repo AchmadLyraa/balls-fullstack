@@ -1,8 +1,8 @@
 "use client"
 
-import { Button } from "@/components/button"
-import { Input } from "@/components/input"
-import { Label } from "@/components/label"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { registerUser } from "@/app/actions/auth"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -22,8 +22,8 @@ export default function RegisterForm() {
       const result = await registerUser(formData)
 
       if (result && !result.success) {
-        setError(result.error)
-        toast.error(result.error)
+        setError(result.message)
+        toast.error(result.message)
       }
     } catch (error) {
       setError("An unexpected error occurred. Please try again.")

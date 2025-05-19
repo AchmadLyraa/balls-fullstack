@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { useRouter } from "next/navigation";
 import { cookies } from "next/headers";
 import { jwtVerify, SignJWT } from "jose";
 import type { UserRole } from "@prisma/client";
@@ -105,6 +106,24 @@ export async function signIn(emailOrUsername: string, password: string) {
     role: user.role,
     username: user.username,
   };
+}
+export function useAuth() {
+  const router = useRouter();
+  
+  const logout = async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+      
+      router.refresh(); // Refresh the page to clear the session
+      router.push("/login"); // Redirect to login page
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+  };
+
+  return { logout };
 }
 
 export async function signOut() {

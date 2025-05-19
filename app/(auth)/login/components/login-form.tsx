@@ -20,8 +20,8 @@ export default function LoginForm() {
       const result = await loginUser(formData)
 
       if (result && !result.success) {
-        setError(result.error)
-        toast.error(result.error)
+        setError(result.message)
+        toast.error(result.message)
       }
     } catch (error) {
       setError("An unexpected error occurred. Please try again.")

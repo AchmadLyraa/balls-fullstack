@@ -1,4 +1,4 @@
-import { requireAdminAuth } from "@/lib/server-auth"
+import { requireAdminAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
