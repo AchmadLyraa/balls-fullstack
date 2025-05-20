@@ -5,11 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-const formatNumberFormatter = new Intl.NumberFormat("id-ID", {});
-
-export function formatNumber(amount: number) {
-  return formatNumberFormatter.format(amount);
-}
+export const formatNumber = new Intl.NumberFormat("id-ID").format;
 
 export function formatMoney(amount: number) {
   return "Rp" + formatNumber(amount);
@@ -22,16 +18,12 @@ export function formatHM(date: Date) {
   return `${hour}:${minute}`;
 }
 
-const formatDateFormatter = new Intl.DateTimeFormat("en-US", {
+export const formatDate = new Intl.DateTimeFormat("en-US", {
   weekday: "long",
   day: "numeric",
   month: "long",
   year: "numeric",
-});
-
-export function formatDate(date: Date) {
-  return formatDateFormatter.format(date);
-}
+}).format;
 
 export function ucFirst(str: string) {
   if (str === "") {
@@ -39,4 +31,8 @@ export function ucFirst(str: string) {
   }
 
   return str[0]!.toUpperCase() + str.slice(1);
+}
+
+export function snakeCaseToTitleCase(str: string) {
+  return str.split("_").map(ucFirst).join(" ");
 }

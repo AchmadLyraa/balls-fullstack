@@ -1,10 +1,11 @@
 "use server";
 
-import { BookingStatus, type PaymentStatus, UserRole } from "@prisma/client";
+import { BookingStatus, UserRole } from "@prisma/client";
 import { getUser } from "@/lib/server-auth";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/server-auth";
+import { revalidatePath } from "next/cache";
 
 // Validation schema for admin user
 const adminUserSchema = z.object({
@@ -74,49 +75,56 @@ export async function updateBookingStatus(
   }
 }
 
-export async function updatePaymentStatus(
-  paymentId: string,
-  status: PaymentStatus,
-) {
-  const user = await getUser();
-
-  if (!user || (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN")) {
-    return { success: false, error: "Unauthorized" };
-  }
+export async function confirmPayment(formData: FormData) {
+  const paymentId = formData.get("paymentId") as string;
+  const note = formData.get("note") as string;
 
   try {
+    const checkPayment = await prisma.payment.findFirst({
+      where: { id: paymentId },
+      select: { status: true },
+    });
+    if (!checkPayment) {
+      return { success: false, error: "Payment not found" };
+    } else if (checkPayment.status === "PAID") {
+      return { success: false, error: "This payment has been verified" };
+    } else if (checkPayment.status !== "PENDING") {
+      return { success: false, error: "Payment status is invalid" };
+    }
+
     const payment = await prisma.payment.update({
       where: { id: paymentId },
-      data: { status },
-      include: { booking: true },
+      data: { status: "PAID", notes: note },
     });
 
     // If payment is confirmed, update booking status
-    if (status === "PAID") {
-      await prisma.booking.update({
-        where: { id: payment.bookingId },
-        data: { status: BookingStatus.CONFIRMED },
-      });
+    // if (status === "PAID") {
+    await prisma.booking.update({
+      where: { id: payment.bookingId },
+      data: { status: BookingStatus.CONFIRMED },
+    });
 
-      // Add stamps to loyalty card (1 stamp per booking)
-      const loyaltyCard = await prisma.loyaltyCard.findUnique({
-        where: { userId: payment.userId },
-      });
+    // Add stamps to loyalty card (1 stamp per booking)
+    // const loyaltyCard = await prisma.loyaltyCard.findUnique({
+    //   where: { userId: payment.userId },
+    // });
 
-      if (loyaltyCard) {
-        await prisma.loyaltyCard.update({
-          where: { id: loyaltyCard.id },
-          data: { stamps: loyaltyCard.stamps + 1 },
-        });
-      } else {
-        await prisma.loyaltyCard.create({
-          data: {
-            userId: payment.userId,
-            stamps: 1,
-          },
-        });
-      }
-    }
+    // if (loyaltyCard) {
+    //   await prisma.loyaltyCard.update({
+    //     where: { id: loyaltyCard.id },
+    //     data: { stamps: loyaltyCard.stamps + 1 },
+    //   });
+    // } else {
+    //   await prisma.loyaltyCard.create({
+    //     data: {
+    //       userId: payment.userId,
+    //       stamps: 1,
+    //     },
+    //   });
+    // }
+    // }
+
+    revalidatePath("/admin/transactions");
 
     return { success: true };
   } catch (error) {
