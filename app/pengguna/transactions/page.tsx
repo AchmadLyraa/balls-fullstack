@@ -1,8 +1,8 @@
-import { requireCustomerAuth } from "@/lib/server-auth"
-import TransactionsClient from "./transactions-client"
+import { requireAuth } from "@/lib/server-auth";
+import TransactionsClient from "./transactions-client";
 
 export default async function TransactionsPage() {
-  const user = await requireCustomerAuth()
+  const user = await requireAuth("CUSTOMER");
 
-  return <TransactionsClient user={user} />
+  return <TransactionsClient user={user} />;
 }

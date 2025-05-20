@@ -1,18 +1,18 @@
-import type React from "react"
-import { requireAdminAuth } from "@/lib/server-auth"
-import AdminSidebar from "../components/admin/Sidebar"
+import type React from "react";
+import { requireAuth } from "@/lib/server-auth";
+import AdminSidebar from "../components/admin/Sidebar";
 
 export default async function AdminLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const user = await requireAdminAuth()
+  const user = await requireAuth("ADMIN");
 
   return (
-    <div className="min-h-screen flex">
+    <div className="flex min-h-screen">
       <AdminSidebar user={user} />
-      <main className="flex-1 p-6 overflow-auto">{children}</main>
+      <main className="flex-1 overflow-auto p-6">{children}</main>
     </div>
-  )
+  );
 }

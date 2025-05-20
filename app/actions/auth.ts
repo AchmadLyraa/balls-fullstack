@@ -1,17 +1,16 @@
 "use server";
 
-import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { cookies } from "next/headers";
 import { sign } from "jsonwebtoken";
 import { UserRole } from "@prisma/client";
 import { jwtVerify } from "jose";
-import type { UserJwtPayload } from "@/lib/auth";
+import { prisma, type UserJwtPayload } from "@/lib/server-auth";
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "your-secret-key");
-
-const prisma = new PrismaClient();
+const JWT_SECRET = new TextEncoder().encode(
+  process.env.JWT_SECRET || "your-secret-key",
+);
 
 const registerSchema = z.object({
   username: z.string().min(3, "Username harus minimal 3 karakter"),
@@ -19,7 +18,9 @@ const registerSchema = z.object({
   password: z.string().min(6, "Password harus minimal 6 karakter"),
   fullName: z.string().min(3, "Nama lengkap harus minimal 3 karakter"),
   phoneNumber: z.string().optional(),
-  role: z.enum([UserRole.CUSTOMER, UserRole.ADMIN, UserRole.SUPER_ADMIN]).default(UserRole.CUSTOMER),
+  role: z
+    .enum([UserRole.CUSTOMER, UserRole.ADMIN, UserRole.SUPER_ADMIN])
+    .default(UserRole.CUSTOMER),
 });
 
 const loginSchema = z.object({
@@ -51,7 +52,9 @@ export async function registerUser(formData: FormData) {
     });
 
     const existingUser = await prisma.user.findFirst({
-      where: { OR: [{ username: validated.username }, { email: validated.email }] },
+      where: {
+        OR: [{ username: validated.username }, { email: validated.email }],
+      },
     });
 
     if (existingUser) {
@@ -89,7 +92,10 @@ export async function loginUser(formData: FormData) {
 
   // Pengecekan null untuk field wajib
   if (!emailOrUsername || !password) {
-    return { success: false, message: "Email/username dan password diperlukan" };
+    return {
+      success: false,
+      message: "Email/username dan password diperlukan",
+    };
   }
 
   try {
@@ -105,13 +111,16 @@ export async function loginUser(formData: FormData) {
     });
 
     if (!user || !(await bcrypt.compare(validated.password, user.password))) {
-      return { success: false, message: "Email, username, atau password salah" };
+      return {
+        success: false,
+        message: "Email, username, atau password salah",
+      };
     }
 
     const token = sign(
       { id: user.id, username: user.username, role: user.role },
       process.env.JWT_SECRET as string,
-      { expiresIn: "1h" }
+      { expiresIn: "1h" },
     );
 
     const cookieStore = await cookies();

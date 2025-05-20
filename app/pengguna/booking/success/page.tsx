@@ -1,8 +1,8 @@
-import { requireCustomerAuth } from "@/lib/server-auth"
-import SuccessClient from "./success-client"
+import { requireAuth } from "@/lib/server-auth";
+import SuccessClient from "./success-client";
 
 export default async function SuccessPage() {
-  const user = await requireCustomerAuth()
+  const user = await requireAuth("CUSTOMER");
 
-  return <SuccessClient user={user} />
+  return <SuccessClient user={user} />;
 }

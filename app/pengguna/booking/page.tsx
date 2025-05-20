@@ -1,8 +1,7 @@
-import { requireCustomerAuth } from "@/lib/server-auth"
-import BookingClient from "./booking-client"
+import { requireAuth } from "@/lib/server-auth";
 
 export default async function BookingPage() {
-  const user = await requireCustomerAuth()
+  const user = await requireAuth("CUSTOMER");
 
-  return <BookingClient user={user} />
+  return <BookingClient user={user} />;
 }

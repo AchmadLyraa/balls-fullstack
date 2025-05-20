@@ -1,18 +1,18 @@
-import type React from "react"
-import { requireCustomerAuth } from "@/lib/server-auth"
-import PenggunaHeader from "./pengguna-header"
+import type React from "react";
+import { requireAuth } from "@/lib/server-auth";
+import PenggunaHeader from "./pengguna-header";
 
 export default async function PenggunaLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const user = await requireCustomerAuth()
+  const user = await requireAuth("CUSTOMER");
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex min-h-screen flex-col">
       <PenggunaHeader user={user} />
-      <main className="flex-1 container mx-auto py-6 px-4">{children}</main>
+      <main className="container mx-auto flex-1 px-4 py-6">{children}</main>
     </div>
-  )
+  );
 }

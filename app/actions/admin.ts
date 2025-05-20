@@ -1,11 +1,10 @@
-"use server"
+"use server";
 
-import { PrismaClient, BookingStatus, type PaymentStatus, UserRole } from "@prisma/client"
-import { getUser } from "@/lib/auth"
-import { redirect } from "next/navigation"
-import { z } from "zod"
-
-const prisma = new PrismaClient()
+import { BookingStatus, type PaymentStatus, UserRole } from "@prisma/client";
+import { getUser } from "@/lib/server-auth";
+import { redirect } from "next/navigation";
+import { z } from "zod";
+import { prisma } from "@/lib/server-auth";
 
 // Validation schema for admin user
 const adminUserSchema = z.object({
@@ -15,13 +14,13 @@ const adminUserSchema = z.object({
   fullName: z.string().min(3, "Full name must be at least 3 characters"),
   phoneNumber: z.string().optional(),
   role: z.enum([UserRole.ADMIN, UserRole.SUPER_ADMIN]),
-})
+});
 
 export async function getAllBookings() {
-  const user = await getUser()
+  const user = await getUser();
 
   if (!user || (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN")) {
-    redirect("/auth/login-admin")
+    redirect("/auth/login-admin");
   }
 
   try {
@@ -40,43 +39,49 @@ export async function getAllBookings() {
         payments: true,
       },
       orderBy: { createdAt: "desc" },
-    })
+    });
 
-    return bookings
+    return bookings;
   } catch (error) {
-    console.error("Error fetching bookings:", error)
-    return []
+    console.error("Error fetching bookings:", error);
+    return [];
   }
 }
 
-export async function updateBookingStatus(bookingId: string, status: BookingStatus) {
-  const user = await getUser()
+export async function updateBookingStatus(
+  bookingId: string,
+  status: BookingStatus,
+) {
+  const user = await getUser();
 
   if (!user || (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN")) {
-    return { success: false, error: "Unauthorized" }
+    return { success: false, error: "Unauthorized" };
   }
 
   try {
     await prisma.booking.update({
       where: { id: bookingId },
       data: { status },
-    })
+    });
 
-    return { success: true }
+    return { success: true };
   } catch (error) {
     if (error instanceof Error) {
-      return { success: false, error: error.message }
+      return { success: false, error: error.message };
     }
 
-    return { success: false, error: "An unknown error occurred" }
+    return { success: false, error: "An unknown error occurred" };
   }
 }
 
-export async function updatePaymentStatus(paymentId: string, status: PaymentStatus) {
-  const user = await getUser()
+export async function updatePaymentStatus(
+  paymentId: string,
+  status: PaymentStatus,
+) {
+  const user = await getUser();
 
   if (!user || (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN")) {
-    return { success: false, error: "Unauthorized" }
+    return { success: false, error: "Unauthorized" };
   }
 
   try {
@@ -84,80 +89,82 @@ export async function updatePaymentStatus(paymentId: string, status: PaymentStat
       where: { id: paymentId },
       data: { status },
       include: { booking: true },
-    })
+    });
 
     // If payment is confirmed, update booking status
     if (status === "PAID") {
       await prisma.booking.update({
         where: { id: payment.bookingId },
         data: { status: BookingStatus.CONFIRMED },
-      })
+      });
 
       // Add stamps to loyalty card (1 stamp per booking)
       const loyaltyCard = await prisma.loyaltyCard.findUnique({
         where: { userId: payment.userId },
-      })
+      });
 
       if (loyaltyCard) {
         await prisma.loyaltyCard.update({
           where: { id: loyaltyCard.id },
           data: { stamps: loyaltyCard.stamps + 1 },
-        })
+        });
       } else {
         await prisma.loyaltyCard.create({
           data: {
             userId: payment.userId,
             stamps: 1,
           },
-        })
+        });
       }
     }
 
-    return { success: true }
+    return { success: true };
   } catch (error) {
     if (error instanceof Error) {
-      return { success: false, error: error.message }
+      return { success: false, error: error.message };
     }
 
-    return { success: false, error: "An unknown error occurred" }
+    return { success: false, error: "An unknown error occurred" };
   }
 }
 
 export async function getAllRewards() {
-  const user = await getUser()
+  const user = await getUser();
 
   if (!user || (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN")) {
-    redirect("/auth/login-admin")
+    redirect("/auth/login-admin");
   }
 
   try {
     const rewards = await prisma.reward.findMany({
       orderBy: { stampsRequired: "asc" },
-    })
+    });
 
-    return rewards
+    return rewards;
   } catch (error) {
-    console.error("Error fetching rewards:", error)
-    return []
+    console.error("Error fetching rewards:", error);
+    return [];
   }
 }
 
 export async function createReward(formData: FormData) {
-  const user = await getUser()
+  const user = await getUser();
 
   if (!user || (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN")) {
-    return { success: false, error: "Unauthorized" }
+    return { success: false, error: "Unauthorized" };
   }
 
-  const name = formData.get("name") as string
-  const description = formData.get("description") as string
-  const stampsRequired = Number.parseInt(formData.get("stampsRequired") as string)
-  const imageFile = formData.get("image") as File
+  const name = formData.get("name") as string;
+  const description = formData.get("description") as string;
+  const stampsRequired = Number.parseInt(
+    formData.get("stampsRequired") as string,
+  );
+  const imageFile = formData.get("image") as File;
 
   try {
     // In a real application, you would upload the image to a storage service
     // and get a URL to store in the database
-    const imageUrl = "/placeholder.svg" // Placeholder for demo
+    const imageUrl = "/placeholder.svg"; // Placeholder for demo
 
     const reward = await prisma.reward.create({
       data: {
@@ -166,31 +173,33 @@ export async function createReward(formData: FormData) {
         stampsRequired,
         imageUrl,
       },
-    })
+    });
 
-    return { success: true, rewardId: reward.id }
+    return { success: true, rewardId: reward.id };
   } catch (error) {
     if (error instanceof Error) {
-      return { success: false, error: error.message }
+      return { success: false, error: error.message };
     }
 
-    return { success: false, error: "An unknown error occurred" }
+    return { success: false, error: "An unknown error occurred" };
   }
 }
 
 export async function updateReward(formData: FormData) {
-  const user = await getUser()
+  const user = await getUser();
 
   if (!user || (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN")) {
-    return { success: false, error: "Unauthorized" }
+    return { success: false, error: "Unauthorized" };
   }
 
-  const rewardId = formData.get("rewardId") as string
-  const name = formData.get("name") as string
-  const description = formData.get("description") as string
-  const stampsRequired = Number.parseInt(formData.get("stampsRequired") as string)
-  const isActive = formData.get("isActive") === "true"
-  const imageFile = formData.get("image") as File | null
+  const rewardId = formData.get("rewardId") as string;
+  const name = formData.get("name") as string;
+  const description = formData.get("description") as string;
+  const stampsRequired = Number.parseInt(
+    formData.get("stampsRequired") as string,
+  );
+  const isActive = formData.get("isActive") === "true";
+  const imageFile = formData.get("image") as File | null;
 
   try {
     // In a real application, you would upload the image to a storage service
@@ -200,32 +209,32 @@ export async function updateReward(formData: FormData) {
       description,
       stampsRequired,
       isActive,
-    }
+    };
 
     if (imageFile) {
-      updateData.imageUrl = "/placeholder.svg" // Placeholder for demo
+      updateData.imageUrl = "/placeholder.svg"; // Placeholder for demo
     }
 
     const reward = await prisma.reward.update({
       where: { id: rewardId },
       data: updateData,
-    })
+    });
 
-    return { success: true, rewardId: reward.id }
+    return { success: true, rewardId: reward.id };
   } catch (error) {
     if (error instanceof Error) {
-      return { success: false, error: error.message }
+      return { success: false, error: error.message };
     }
 
-    return { success: false, error: "An unknown error occurred" }
+    return { success: false, error: "An unknown error occurred" };
   }
 }
 
 export async function getAllRedemptions() {
-  const user = await getUser()
+  const user = await getUser();
 
   if (!user || (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN")) {
-    redirect("/auth/login-admin")
+    redirect("/auth/login-admin");
   }
 
   try {
@@ -243,43 +252,46 @@ export async function getAllRedemptions() {
         loyaltyCard: true,
       },
       orderBy: { createdAt: "desc" },
-    })
+    });
 
-    return redemptions
+    return redemptions;
   } catch (error) {
-    console.error("Error fetching redemptions:", error)
-    return []
+    console.error("Error fetching redemptions:", error);
+    return [];
   }
 }
 
-export async function updateRedemptionStatus(redemptionId: string, status: string) {
-  const user = await getUser()
+export async function updateRedemptionStatus(
+  redemptionId: string,
+  status: string,
+) {
+  const user = await getUser();
 
   if (!user || (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN")) {
-    return { success: false, error: "Unauthorized" }
+    return { success: false, error: "Unauthorized" };
   }
 
   try {
     await prisma.redemption.update({
       where: { id: redemptionId },
       data: { status },
-    })
+    });
 
-    return { success: true }
+    return { success: true };
   } catch (error) {
     if (error instanceof Error) {
-      return { success: false, error: error.message }
+      return { success: false, error: error.message };
     }
 
-    return { success: false, error: "An unknown error occurred" }
+    return { success: false, error: "An unknown error occurred" };
   }
 }
 
 export async function getAllAdmins() {
-  const user = await getUser()
+  const user = await getUser();
 
   if (!user || user.role !== "SUPER_ADMIN") {
-    redirect("/auth/login-admin")
+    redirect("/auth/login-admin");
   }
 
   try {
@@ -298,28 +310,28 @@ export async function getAllAdmins() {
         createdAt: true,
       },
       orderBy: { createdAt: "desc" },
-    })
+    });
 
-    return admins
+    return admins;
   } catch (error) {
-    console.error("Error fetching admins:", error)
-    return []
+    console.error("Error fetching admins:", error);
+    return [];
   }
 }
 
 export async function createAdmin(formData: FormData) {
-  const user = await getUser()
+  const user = await getUser();
 
   if (!user || user.role !== "SUPER_ADMIN") {
-    return { success: false, error: "Unauthorized" }
+    return { success: false, error: "Unauthorized" };
   }
 
-  const username = formData.get("username") as string
-  const email = formData.get("email") as string
-  const password = formData.get("password") as string
-  const fullName = formData.get("fullName") as string
-  const phoneNumber = (formData.get("phoneNumber") as string) || null
-  const role = (formData.get("role") as UserRole) || UserRole.ADMIN
+  const username = formData.get("username") as string;
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const fullName = formData.get("fullName") as string;
+  const phoneNumber = (formData.get("phoneNumber") as string) || null;
+  const role = (formData.get("role") as UserRole) || UserRole.ADMIN;
 
   try {
     // Validate form data
@@ -330,27 +342,27 @@ export async function createAdmin(formData: FormData) {
       fullName,
       phoneNumber,
       role,
-    })
+    });
 
     // Check if user already exists
     const existingUser = await prisma.user.findFirst({
       where: {
         OR: [{ email }, { username }],
       },
-    })
+    });
 
     if (existingUser) {
       if (existingUser.email === email) {
-        return { success: false, error: "Email already exists" }
+        return { success: false, error: "Email already exists" };
       }
       if (existingUser.username === username) {
-        return { success: false, error: "Username already exists" }
+        return { success: false, error: "Username already exists" };
       }
     }
 
     // Hash password
-    const bcrypt = require("bcryptjs")
-    const hashedPassword = await bcrypt.hash(password, 10)
+    const bcrypt = require("bcryptjs");
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create user
     const newAdmin = await prisma.user.create({
@@ -362,45 +374,45 @@ export async function createAdmin(formData: FormData) {
         phoneNumber,
         role,
       },
-    })
+    });
 
-    return { success: true, adminId: newAdmin.id }
+    return { success: true, adminId: newAdmin.id };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return { success: false, error: error.errors[0].message }
+      return { success: false, error: error.errors[0].message };
     }
 
     if (error instanceof Error) {
-      return { success: false, error: error.message }
+      return { success: false, error: error.message };
     }
 
-    return { success: false, error: "An unknown error occurred" }
+    return { success: false, error: "An unknown error occurred" };
   }
 }
 
 export async function updateAdmin(formData: FormData) {
-  const user = await getUser()
+  const user = await getUser();
 
   if (!user || user.role !== "SUPER_ADMIN") {
-    return { success: false, error: "Unauthorized" }
+    return { success: false, error: "Unauthorized" };
   }
 
-  const adminId = formData.get("adminId") as string
-  const username = formData.get("username") as string
-  const email = formData.get("email") as string
-  const password = formData.get("password") as string
-  const fullName = formData.get("fullName") as string
-  const phoneNumber = (formData.get("phoneNumber") as string) || null
-  const isActive = formData.get("isActive") === "true"
+  const adminId = formData.get("adminId") as string;
+  const username = formData.get("username") as string;
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const fullName = formData.get("fullName") as string;
+  const phoneNumber = (formData.get("phoneNumber") as string) || null;
+  const isActive = formData.get("isActive") === "true";
 
   try {
     // Check if admin exists
     const admin = await prisma.user.findUnique({
       where: { id: adminId },
-    })
+    });
 
     if (!admin) {
-      return { success: false, error: "Admin not found" }
+      return { success: false, error: "Admin not found" };
     }
 
     // Check if username or email is already taken by another user
@@ -412,14 +424,14 @@ export async function updateAdmin(formData: FormData) {
             { username, id: { not: adminId } },
           ],
         },
-      })
+      });
 
       if (existingUser) {
         if (existingUser.email === email) {
-          return { success: false, error: "Email already exists" }
+          return { success: false, error: "Email already exists" };
         }
         if (existingUser.username === username) {
-          return { success: false, error: "Username already exists" }
+          return { success: false, error: "Username already exists" };
         }
       }
     }
@@ -431,63 +443,63 @@ export async function updateAdmin(formData: FormData) {
       fullName,
       phoneNumber,
       isActive,
-    }
+    };
 
     // Hash password if provided
     if (password) {
-      const bcrypt = require("bcryptjs")
-      updateData.password = await bcrypt.hash(password, 10)
+      const bcrypt = require("bcryptjs");
+      updateData.password = await bcrypt.hash(password, 10);
     }
 
     // Update admin
     await prisma.user.update({
       where: { id: adminId },
       data: updateData,
-    })
+    });
 
-    return { success: true }
+    return { success: true };
   } catch (error) {
     if (error instanceof Error) {
-      return { success: false, error: error.message }
+      return { success: false, error: error.message };
     }
 
-    return { success: false, error: "An unknown error occurred" }
+    return { success: false, error: "An unknown error occurred" };
   }
 }
 
 export async function deleteAdmin(adminId: string) {
-  const user = await getUser()
+  const user = await getUser();
 
   if (!user || user.role !== "SUPER_ADMIN") {
-    return { success: false, error: "Unauthorized" }
+    return { success: false, error: "Unauthorized" };
   }
 
   try {
     // Check if admin exists
     const admin = await prisma.user.findUnique({
       where: { id: adminId },
-    })
+    });
 
     if (!admin) {
-      return { success: false, error: "Admin not found" }
+      return { success: false, error: "Admin not found" };
     }
 
     // Prevent deleting yourself
     if (admin.id === user.id) {
-      return { success: false, error: "You cannot delete your own account" }
+      return { success: false, error: "You cannot delete your own account" };
     }
 
     // Delete admin
     await prisma.user.delete({
       where: { id: adminId },
-    })
+    });
 
-    return { success: true }
+    return { success: true };
   } catch (error) {
     if (error instanceof Error) {
-      return { success: false, error: error.message }
+      return { success: false, error: error.message };
     }
 
-    return { success: false, error: "An unknown error occurred" }
+    return { success: false, error: "An unknown error occurred" };
   }
 }

@@ -1,8 +1,8 @@
-import { requireCustomerAuth } from "@/lib/server-auth"
-import UploadPaymentClient from "./upload-payment-client"
+import { requireAuth } from "@/lib/server-auth";
+import UploadPaymentClient from "./upload-payment-client";
 
 export default async function UploadPaymentPage() {
-  const user = await requireCustomerAuth()
+  const user = await requireAuth("CUSTOMER");
 
-  return <UploadPaymentClient user={user} />
+  return <UploadPaymentClient user={user} />;
 }
