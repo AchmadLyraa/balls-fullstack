@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -11,36 +10,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { UserJwtPayload } from "@/lib/server-auth";
 import { BookingStatus } from "@prisma/client";
 import { Eye } from "lucide-react";
-import { getUserBookings } from "@/app/actions/booking";
-import { toast } from "sonner";
+import type { getUserBookings } from "@/app/actions/booking";
+import { formatDate, formatHM, formatMoney, ucFirst } from "@/lib/utils";
+import Link from "next/link";
 
 interface TransactionsClientProps {
-  user: UserJwtPayload;
+  transactions: Awaited<ReturnType<typeof getUserBookings>>;
 }
 
-export default function TransactionsClient({ user }: TransactionsClientProps) {
-  const [transactions, setTransactions] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    async function loadBookings() {
-      try {
-        const bookings = await getUserBookings();
-        setTransactions(bookings || []);
-      } catch (error) {
-        console.error("Error loading bookings:", error);
-        toast.error("Failed to load booking history");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    loadBookings();
-  }, []);
-
+export default function TransactionsClient({
+  transactions,
+}: TransactionsClientProps) {
   const getStatusClass = (status: BookingStatus) => {
     switch (status) {
       case BookingStatus.CONFIRMED:
@@ -55,51 +37,6 @@ export default function TransactionsClient({ user }: TransactionsClientProps) {
         return "bg-gray-100 text-gray-800";
     }
   };
-
-  const getStatusText = (status: BookingStatus) => {
-    switch (status) {
-      case BookingStatus.CONFIRMED:
-        return "Confirmed";
-      case BookingStatus.PENDING:
-        return "Pending";
-      case BookingStatus.CANCELLED:
-        return "Cancelled";
-      case BookingStatus.COMPLETED:
-        return "Completed";
-      default:
-        return status;
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString();
-  };
-
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  };
-
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            Your Transactions
-          </h1>
-          <p className="text-muted-foreground">
-            View your booking history and transaction details
-          </p>
-        </div>
-        <Card>
-          <CardContent className="flex h-40 items-center justify-center p-6">
-            <p>Loading transactions...</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -134,24 +71,32 @@ export default function TransactionsClient({ user }: TransactionsClientProps) {
                     <TableCell>{transaction.field.name}</TableCell>
                     <TableCell>{formatDate(transaction.bookingDate)}</TableCell>
                     <TableCell>
-                      {formatTime(transaction.startTime)} -{" "}
-                      {formatTime(transaction.endTime)}
+                      {formatHM(transaction.startTime)} -{" "}
+                      {formatHM(transaction.endTime)}
                     </TableCell>
-                    <TableCell>
-                      Rp {transaction.amount.toLocaleString()}
-                    </TableCell>
+                    <TableCell>{formatMoney(transaction.amount)}</TableCell>
                     <TableCell>
                       <span
                         className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusClass(transaction.status)}`}
                       >
-                        {getStatusText(transaction.status)}
+                        {ucFirst(transaction.status.toLowerCase())}
                       </span>
                     </TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="sm">
-                        <Eye className="mr-2 h-4 w-4" />
-                        View
-                      </Button>
+                      <Link
+                        href={
+                          transaction.payments.length
+                            ? transaction.players.length
+                              ? `/pengguna/booking/success?bookingId=${transaction.id}`
+                              : `/pengguna/booking/player?bookingId=${transaction.id}`
+                            : `/pengguna/booking/upload-payment?bookingId=${transaction.id}`
+                        }
+                      >
+                        <Button variant="ghost" size="sm">
+                          <Eye className="mr-2 h-4 w-4" />
+                          View
+                        </Button>
+                      </Link>
                     </TableCell>
                   </TableRow>
                 ))}

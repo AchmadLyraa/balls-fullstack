@@ -3,9 +3,8 @@
 import type React from "react";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -18,18 +17,18 @@ import { Label } from "@/components/ui/label";
 import type { UserJwtPayload } from "@/lib/server-auth";
 import { toast } from "sonner";
 import { Upload } from "lucide-react";
-import { uploadPaymentProof } from "@/app/actions/booking";
+import { type Booking, uploadPaymentProof } from "@/app/actions/booking";
 
 interface UploadPaymentClientProps {
   user: UserJwtPayload;
+  booking: Booking;
 }
 
 export default function UploadPaymentClient({
   user,
+  booking,
 }: UploadPaymentClientProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const bookingId = searchParams.get("bookingId");
 
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -37,17 +36,17 @@ export default function UploadPaymentClient({
   const [paymentMethod, setPaymentMethod] = useState<string>("BANK_TRANSFER");
   const [amount, setAmount] = useState<string>("450000");
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (e: React.DragEvent<HTMLElement>) => {
     e.preventDefault();
     setIsDragging(true);
   };
 
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDragLeave = (e: React.DragEvent<HTMLElement>) => {
     e.preventDefault();
     setIsDragging(false);
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: React.DragEvent<HTMLElement>) => {
     e.preventDefault();
     setIsDragging(false);
 
@@ -69,16 +68,11 @@ export default function UploadPaymentClient({
       return;
     }
 
-    if (!bookingId) {
-      toast.error("Booking ID is missing");
-      return;
-    }
-
     setIsUploading(true);
 
     try {
       const formData = new FormData();
-      formData.append("bookingId", bookingId);
+      formData.append("bookingId", booking.id);
       formData.append("paymentMethod", paymentMethod);
       formData.append("amount", amount);
       formData.append("proofImage", file);
@@ -87,7 +81,7 @@ export default function UploadPaymentClient({
 
       if (result.success) {
         toast.success("Payment proof uploaded successfully!");
-        router.push("/pengguna/booking/success");
+        router.push(`/pengguna/booking/player?bookingId=${booking.id}`);
       } else {
         toast.error(result.error || "Failed to upload payment proof");
       }
@@ -98,133 +92,100 @@ export default function UploadPaymentClient({
     }
   };
 
-  if (!bookingId) {
-    return (
-      <div className="mx-auto max-w-2xl">
-        <Card>
-          <CardContent className="p-6">
+  return (
+    <>
+      <div className="mb-6 grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="paymentMethod">Payment Method</Label>
+          <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select payment method" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="BANK_TRANSFER">Bank Transfer</SelectItem>
+              <SelectItem value="CASH">Cash</SelectItem>
+              <SelectItem value="QRIS">QRIS</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="amount">Amount (Rp)</Label>
+          <Input
+            id="amount"
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <label
+        htmlFor="file-upload"
+        className={`block rounded-lg border-2 border-dashed p-12 text-center ${
+          isDragging ? "border-red-500 bg-red-50" : "border-gray-300"
+        }`}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        <div className="flex flex-col items-center justify-center">
+          <Upload className="mb-4 h-12 w-12 text-gray-400" />
+
+          {file ? (
             <div className="text-center">
-              <h1 className="text-2xl font-bold text-red-600">Error</h1>
-              <p className="mt-2 text-gray-500">
-                Booking ID is missing. Please try again.
+              <p className="text-sm font-medium">{file.name}</p>
+              <p className="text-xs text-gray-500">
+                {(file.size / 1024 / 1024).toFixed(2)} MB
               </p>
               <Button
-                className="mt-4 bg-red-600 hover:bg-red-700"
-                onClick={() => router.push("/pengguna/booking")}
+                variant="ghost"
+                size="sm"
+                className="mt-2 text-red-600"
+                onClick={() => setFile(null)}
               >
-                Back to Booking
+                Remove
               </Button>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+          ) : (
+            <>
+              <p className="mb-2 text-sm font-medium">
+                <span className="font-semibold">Click to upload</span> or drag
+                and drop
+              </p>
+              <p className="text-xs text-gray-500">
+                PNG, JPG or PDF (MAX. 10MB)
+              </p>
+            </>
+          )}
 
-  return (
-    <div className="mx-auto max-w-2xl">
-      <Card>
-        <CardContent className="p-6">
-          <div className="mb-6 text-center">
-            <h1 className="text-2xl font-bold">Upload Bukti Pembayaran</h1>
-            <p className="text-gray-500">
-              Please upload your payment proof to confirm your booking
-            </p>
-          </div>
+          <input
+            id="file-upload"
+            type="file"
+            className="hidden"
+            accept="image/png,image/jpeg,application/pdf"
+            onChange={handleFileChange}
+          />
+        </div>
+      </label>
 
-          <div className="mb-6 space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="paymentMethod">Payment Method</Label>
-              <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select payment method" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="BANK_TRANSFER">Bank Transfer</SelectItem>
-                  <SelectItem value="CASH">Cash</SelectItem>
-                  <SelectItem value="QRIS">QRIS</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="amount">Amount (Rp)</Label>
-              <Input
-                id="amount"
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div
-            className={`rounded-lg border-2 border-dashed p-12 text-center ${
-              isDragging ? "border-red-500 bg-red-50" : "border-gray-300"
-            }`}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
+      <div className="mt-6 flex justify-center">
+        {!file ? (
+          <label htmlFor="file-upload">
+            <Button asChild className="bg-red-600 hover:bg-red-700">
+              <span>Browse</span>
+            </Button>
+          </label>
+        ) : (
+          <Button
+            onClick={handleUpload}
+            disabled={isUploading}
+            className="bg-red-600 hover:bg-red-700"
           >
-            <div className="flex flex-col items-center justify-center">
-              <Upload className="mb-4 h-12 w-12 text-gray-400" />
-
-              {file ? (
-                <div className="text-center">
-                  <p className="text-sm font-medium">{file.name}</p>
-                  <p className="text-xs text-gray-500">
-                    {(file.size / 1024 / 1024).toFixed(2)} MB
-                  </p>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="mt-2 text-red-600"
-                    onClick={() => setFile(null)}
-                  >
-                    Remove
-                  </Button>
-                </div>
-              ) : (
-                <label htmlFor="file-upload">
-                  <p className="mb-2 text-sm font-medium">
-                    <span className="font-semibold">Click to upload</span> or
-                    drag and drop
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    PNG, JPG or PDF (MAX. 10MB)
-                  </p>
-                </label>
-              )}
-
-              <input
-                id="file-upload"
-                type="file"
-                className="hidden"
-                accept="image/png,image/jpeg,application/pdf"
-                onChange={handleFileChange}
-              />
-            </div>
-          </div>
-
-          <div className="mt-6 flex justify-center">
-            {!file ? (
-              <label htmlFor="file-upload">
-                <Button asChild className="bg-red-600 hover:bg-red-700">
-                  <span>Browse</span>
-                </Button>
-              </label>
-            ) : (
-              <Button
-                onClick={handleUpload}
-                disabled={isUploading}
-                className="bg-red-600 hover:bg-red-700"
-              >
-                {isUploading ? "Uploading..." : "Upload Bukti Pembayaran"}
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+            {isUploading ? "Uploading..." : "Upload Proof of Payment"}
+          </Button>
+        )}
+      </div>
+    </>
   );
 }

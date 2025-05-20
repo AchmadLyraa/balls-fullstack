@@ -159,6 +159,8 @@ export async function getUser() {
   }
 }
 
+export type User = NonNullable<Awaited<ReturnType<typeof getUser>>>;
+
 export async function requireAuth(role: UserRole) {
   const user = await getUser();
 

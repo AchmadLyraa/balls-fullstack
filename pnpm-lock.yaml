@@ -119,6 +119,9 @@ importers:
       embla-carousel-react:
         specifier: 8.5.1
         version: 8.5.1(react@18.3.1)
+      fluent-methods:
+        specifier: ^1.0.1
+        version: 1.0.1
       input-otp:
         specifier: 1.4.1
         version: 1.4.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1625,6 +1628,9 @@ packages:
   fill-range@7.1.1:
     resolution: {integrity: sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==}
     engines: {node: '>=8'}
+
+  fluent-methods@1.0.1:
+    resolution: {integrity: sha512-vpXC2dRmT7RdUZKQC4sq8Et8ollgfeBjqod/Cn9M8ku7S4tK3y9BvQuWn+Sc+lDwNJfmGiY85FCb02lZra3aww==}
 
   foreground-child@3.3.1:
     resolution: {integrity: sha512-gIXjKqtFuWEgzFRJA9WCQeSJLZDjgJUOMCMzxtvFq/37KojM1BFGufqsCy0r4qSQmYLsZYMeyRqzIWOMup03sw==}
@@ -3641,6 +3647,8 @@ snapshots:
   fill-range@7.1.1:
     dependencies:
       to-regex-range: 5.0.1
+
+  fluent-methods@1.0.1: {}
 
   foreground-child@3.3.1:
     dependencies:

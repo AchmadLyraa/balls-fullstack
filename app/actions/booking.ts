@@ -6,8 +6,7 @@ import {
   PaymentStatus,
   SourceType,
 } from "@prisma/client";
-import { prisma, getUser } from "@/lib/server-auth";
-import { redirect } from "next/navigation";
+import { prisma, getUser, User } from "@/lib/server-auth";
 import { z } from "zod";
 
 // Validation schema
@@ -108,7 +107,7 @@ export async function createBooking(formData: FormData) {
         endTime: endDateTime,
         duration: durationHours,
         amount: totalAmount,
-        status: BookingStatus.PENDING,
+        status: BookingStatus.UNPAID,
       },
     });
 
@@ -145,16 +144,26 @@ export async function uploadPaymentProof(formData: FormData) {
     // Validate booking
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
+      include: {
+        _count: {
+          select: {
+            payments: true,
+          },
+        },
+      },
     });
 
     if (!booking) {
       return { success: false, error: "Booking not found" };
-    }
-
-    if (booking.userId !== user.id) {
+    } else if (booking.userId !== user.id) {
       return {
         success: false,
         error: "You are not authorized to upload payment for this booking",
+      };
+    } else if (booking._count.payments > 0) {
+      return {
+        success: false,
+        error: "This booking has already been paid",
       };
     }
 
@@ -243,19 +252,14 @@ export async function cancelBooking(bookingId: string) {
   }
 }
 
-export async function getUserBookings() {
-  const user = await getUser();
-
-  if (!user) {
-    redirect("/auth/login");
-  }
-
+export async function getUserBookings(user: Pick<User, "id">) {
   try {
     const bookings = await prisma.booking.findMany({
       where: { userId: user.id },
       include: {
         field: true,
         payments: true,
+        players: true,
       },
       orderBy: { createdAt: "desc" },
     });
@@ -267,17 +271,19 @@ export async function getUserBookings() {
   }
 }
 
-export async function getBookingById(bookingId: string) {
-  const user = await getUser();
-
-  if (!user) {
-    redirect("/auth/login");
-  }
-
+export async function getBookingById(
+  user: Pick<User, "id">,
+  bookingId: string,
+) {
   try {
     const booking = await prisma.booking.findUnique({
-      where: { id: bookingId },
+      where: { id: bookingId, userId: user.id },
       include: {
+        _count: {
+          select: {
+            players: true,
+          },
+        },
         field: true,
         payments: true,
         user: {
@@ -296,20 +302,131 @@ export async function getBookingById(bookingId: string) {
       return null;
     }
 
-    // Check if user is authorized to view this booking
-    if (
-      booking.userId !== user.id &&
-      user.role !== "ADMIN" &&
-      user.role !== "SUPER_ADMIN"
-    ) {
-      return null;
-    }
-
     return booking;
   } catch (error) {
     console.error("Error fetching booking:", error);
     return null;
   }
+}
+
+export type Booking = NonNullable<Awaited<ReturnType<typeof getBookingById>>>;
+
+export async function setPlayersToBooking(formData: FormData) {
+  const user = await getUser();
+
+  if (!user) {
+    return {
+      success: false,
+      error: "You must be logged in to set players",
+    };
+  }
+
+  const bookingId = formData.get("bookingId") as string;
+
+  const players = JSON.parse(formData.get("players") as string);
+  if (!Array.isArray(players)) {
+    return {
+      success: false,
+      error: "Players field not valid",
+    };
+  }
+
+  const usernames = JSON.parse(formData.get("usernames") as string);
+  if (!Array.isArray(usernames)) {
+    return {
+      success: false,
+      error: "Usernames field not valid",
+    };
+  }
+
+  const booking = await prisma.booking.findUnique({
+    where: {
+      id: bookingId,
+    },
+    include: {
+      _count: {
+        select: {
+          payments: true,
+          players: true,
+        },
+      },
+    },
+  });
+
+  if (!booking) {
+    return {
+      success: false,
+      error: "Booking not found",
+    };
+  } else if (booking.userId !== user.id) {
+    return {
+      success: false,
+      error: "You are not authorized to set players for this booking",
+    };
+  } else if (booking._count.payments === 0) {
+    return {
+      success: false,
+      error: "This booking has not been paid",
+    };
+  } else if (booking._count.players > 0) {
+    return {
+      success: false,
+      error: "Players already set",
+    };
+  }
+
+  const userIds = await prisma.user.findMany({
+    where: {
+      username: {
+        in: usernames,
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  userIds.push({ id: user.id });
+
+  const shouldAddPointNow =
+    booking.status === "CONFIRMED" || booking.status === "COMPLETED";
+
+  await Promise.all([
+    prisma.player.createMany({
+      data: players.map((player) => ({
+        fullName: player,
+        bookingId: bookingId,
+      })),
+    }),
+
+    prisma.bookingUser.createMany({
+      data: userIds.map((user) => ({
+        bookingId: bookingId,
+        userId: user.id,
+      })),
+    }),
+
+    shouldAddPointNow &&
+      prisma.bookingPoint.createMany({
+        data: userIds.map((user) => ({
+          bookingId: bookingId,
+          userId: user.id,
+          points: 10,
+        })),
+      }),
+
+    shouldAddPointNow &&
+      prisma.pointSource.createMany({
+        data: userIds.map((user) => ({
+          sourceId: bookingId,
+          sourceType: "BOOKING",
+          userId: user.id,
+          points: 10,
+        })),
+      }),
+  ]);
+
+  return { success: true };
 }
 
 export async function completeBooking(bookingId: string) {
