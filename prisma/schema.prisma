@@ -12,16 +12,16 @@ datasource db {
 
 // User model
 model User {
-  id              String    @id @default(cuid())
-  username        String    @unique
-  email           String    @unique
-  password        String
-  fullName        String
-  phoneNumber     String?
-  role            UserRole  @default(CUSTOMER)
-  isActive        Boolean   @default(true)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id          String   @id @default(cuid())
+  username    String   @unique
+  email       String   @unique
+  password    String
+  fullName    String
+  phoneNumber String?
+  role        UserRole @default(CUSTOMER)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
   bookings        Booking[]
@@ -32,6 +32,7 @@ model User {
   referralPoints  ReferralPoint[]
   promotionPoints PromotionPoint[]
   bookingPoints   BookingPoint[]
+  BookingUser     BookingUser[]
 }
 
 enum UserRole {
@@ -42,23 +43,23 @@ enum UserRole {
 
 // Field model
 model Field {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
   description String?
   capacity    Int
   hourlyRate  Int
-  isAvailable Boolean   @default(true)
+  isAvailable Boolean  @default(true)
   notes       String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
-  bookings    Booking[]
+  bookings Booking[]
 }
 
 // Booking model
 model Booking {
-  id          String    @id @default(cuid())
+  id          String        @id @default(cuid())
   userId      String
   fieldId     String
   bookingDate DateTime
@@ -66,19 +67,22 @@ model Booking {
   endTime     DateTime
   duration    Int
   amount      Int
-  status      BookingStatus @default(PENDING)
+  status      BookingStatus @default(UNPAID)
   notes       String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
   // Relations
-  user        User      @relation(fields: [userId], references: [id])
-  field       Field     @relation(fields: [fieldId], references: [id])
-  payments    Payment[]
+  user          User           @relation(fields: [userId], references: [id])
+  field         Field          @relation(fields: [fieldId], references: [id])
+  payments      Payment[]
   bookingPoints BookingPoint[]
+  players       Player[]
+  bookingUser   BookingUser[]
 }
 
 enum BookingStatus {
+  UNPAID
   PENDING
   CONFIRMED
   CANCELLED
@@ -87,21 +91,21 @@ enum BookingStatus {
 
 // Payment model
 model Payment {
-  id          String    @id @default(cuid())
-  bookingId   String
-  userId      String
-  amount      Int
-  method      PaymentMethod
-  status      PaymentStatus @default(PENDING)
+  id            String        @id @default(cuid())
+  bookingId     String
+  userId        String
+  amount        Int
+  method        PaymentMethod
+  status        PaymentStatus @default(PENDING)
   transactionId String?
-  notes       String?
-  paymentDate DateTime  @default(now())
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  notes         String?
+  paymentDate   DateTime      @default(now())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
   // Relations
-  booking     Booking   @relation(fields: [bookingId], references: [id])
-  user        User      @relation(fields: [userId], references: [id])
+  booking Booking @relation(fields: [bookingId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
 }
 
 enum PaymentMethod {
@@ -122,16 +126,16 @@ enum PaymentStatus {
 
 // Loyalty Program model
 model LoyaltyProgram {
-  id          String    @id @default(cuid())
-  programName String
-  description String?
+  id             String    @id @default(cuid())
+  programName    String
+  description    String?
   pointsRequired Int
-  isActive    Boolean   @default(true)
-  startDate   DateTime?
-  endDate     DateTime?
-  imageUrl    String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  isActive       Boolean   @default(true)
+  startDate      DateTime?
+  endDate        DateTime?
+  imageUrl       String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   // Relations
   redemptions Redemption[]
@@ -139,30 +143,30 @@ model LoyaltyProgram {
 
 // User Points model
 model UserPoint {
-  id          String    @id @default(cuid())
-  userId      String
-  points      Int
-  isActive    Boolean   @default(true)
-  expiryDate  DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id         String    @id @default(cuid())
+  userId     String
+  points     Int
+  isActive   Boolean   @default(true)
+  expiryDate DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   // Relations
-  user        User      @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 }
 
 // Point Source model
 model PointSource {
-  id          String    @id @default(cuid())
-  sourceId    String
-  userId      String
-  points      Int
-  sourceType  SourceType
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id         String     @id @default(cuid())
+  sourceId   String
+  userId     String
+  points     Int
+  sourceType SourceType
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 
   // Relations
-  user        User      @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 }
 
 enum SourceType {
@@ -174,18 +178,18 @@ enum SourceType {
 
 // Redemption model
 model Redemption {
-  id              String    @id @default(cuid())
-  userId          String
+  id               String           @id @default(cuid())
+  userId           String
   loyaltyProgramId String
-  pointsUsed      Int
-  status          RedemptionStatus @default(PENDING)
-  redemptionDate  DateTime  @default(now())
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  pointsUsed       Int
+  status           RedemptionStatus @default(PENDING)
+  redemptionDate   DateTime         @default(now())
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 
   // Relations
-  user            User      @relation(fields: [userId], references: [id])
-  loyaltyProgram  LoyaltyProgram @relation(fields: [loyaltyProgramId], references: [id])
+  user           User           @relation(fields: [userId], references: [id])
+  loyaltyProgram LoyaltyProgram @relation(fields: [loyaltyProgramId], references: [id])
 }
 
 enum RedemptionStatus {
@@ -196,40 +200,59 @@ enum RedemptionStatus {
 
 // Referral Points model
 model ReferralPoint {
-  id          String    @id @default(cuid())
-  userId      String
+  id             String   @id @default(cuid())
+  userId         String
   referredUserId String
-  points      Int
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  points         Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   // Relations
-  user        User      @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 }
 
 // Promotion Points model
 model PromotionPoint {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   userId      String
   promotionId String
   points      Int
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
-  user        User      @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 }
 
 // Booking Points model
 model BookingPoint {
-  id          String    @id @default(cuid())
-  userId      String
-  bookingId   String
-  points      Int
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id        String   @id @default(cuid())
+  userId    String
+  bookingId String
+  points    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  user        User      @relation(fields: [userId], references: [id])
-  booking     Booking   @relation(fields: [bookingId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+  booking Booking @relation(fields: [bookingId], references: [id])
+}
+
+model BookingUser {
+  id        String @id @default(cuid())
+  userId    String
+  bookingId String
+
+  // Relations
+  user    User    @relation(fields: [userId], references: [id])
+  booking Booking @relation(fields: [bookingId], references: [id])
+}
+
+model Player {
+  id        String @id @default(cuid())
+  fullName  String
+  bookingId String
+
+  // Relations
+  booking Booking @relation(fields: [bookingId], references: [id])
 }
