@@ -61,7 +61,7 @@ export async function createBooking(formData: FormData) {
       (endDateTime.getTime() - startDateTime.getTime()) / (1000 * 60 * 60);
 
     // Calculate total amount
-    const totalAmount = field.hourlyRate.toNumber() * durationHours;
+    const totalAmount = field.hourlyRate * durationHours;
 
     // Check if field is available
     const existingBooking = await prisma.booking.findFirst({

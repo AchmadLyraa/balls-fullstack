@@ -46,7 +46,7 @@ model Field {
   name        String
   description String?
   capacity    Int
-  hourlyRate  Decimal   @db.Decimal(10, 2)
+  hourlyRate  Int
   isAvailable Boolean   @default(true)
   notes       String?
   createdAt   DateTime  @default(now())
@@ -64,8 +64,8 @@ model Booking {
   bookingDate DateTime
   startTime   DateTime
   endTime     DateTime
-  duration    Decimal   @db.Decimal(5, 2)
-  amount      Decimal   @db.Decimal(10, 2)
+  duration    Int
+  amount      Int
   status      BookingStatus @default(PENDING)
   notes       String?
   createdAt   DateTime  @default(now())
@@ -90,7 +90,7 @@ model Payment {
   id          String    @id @default(cuid())
   bookingId   String
   userId      String
-  amount      Decimal   @db.Decimal(10, 2)
+  amount      Int
   method      PaymentMethod
   status      PaymentStatus @default(PENDING)
   transactionId String?
