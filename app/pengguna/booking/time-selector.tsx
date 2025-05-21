@@ -76,7 +76,10 @@ export default function TimeSelector({
           startTimes.set(timeSlot, -1);
         } else if (minutes === endMinutes) {
           startTimes.set(timeSlot, -1);
-          startTimes.set(startTimeSlots[i + 1], -1);
+
+          if (startTimeSlots[i + 1]) {
+            startTimes.set(startTimeSlots[i + 1], -1);
+          }
         }
       });
     });
