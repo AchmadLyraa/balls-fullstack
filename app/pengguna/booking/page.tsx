@@ -43,7 +43,7 @@ export default async function BookingPage() {
             section="Field & Time"
             user={user}
           />
-          <BookingClient user={user} fields={fields} />;
+          <BookingClient user={user} fields={fields} />
         </CardContent>
       </Card>
     </div>
