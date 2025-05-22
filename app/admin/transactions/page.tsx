@@ -100,7 +100,12 @@ export default async function TransactionsPage({
                     {transaction.status === "PENDING" ? (
                       <Verify transactionId={transaction.id} />
                     ) : (
-                      <Button variant="ghost" size="icon" disabled>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        disabled
+                        className="!opacity-25"
+                      >
                         <Check className="h-4 w-4" />
                       </Button>
                     )}
