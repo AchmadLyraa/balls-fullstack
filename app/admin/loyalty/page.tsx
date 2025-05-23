@@ -24,6 +24,7 @@ export function getRedemptions() {
         },
       },
     },
+    orderBy: { id: "desc" },
   });
 }
 

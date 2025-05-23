@@ -134,6 +134,30 @@ export async function redeemLoyaltyProgram(programId: string): Promise<
   }
 }
 
+export async function changeRedemptionStatus(
+  redemptionId: string,
+  newStatus: string,
+) {
+  const user = await getUser();
+
+  if (!user || (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN")) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  if (newStatus !== "COMPLETED" && newStatus !== "CANCELLED") {
+    return { success: false, error: "Invalid status" };
+  }
+
+  await prisma.redemption.update({
+    where: { id: redemptionId },
+    data: { status: newStatus },
+  });
+
+  revalidatePath("admin/loyalty");
+
+  return { success: true, message: "Redemption status changed successfully" };
+}
+
 export async function editLoyaltyProgram(
   programId: string,
   data: z.infer<typeof loyaltyFormSchema>,
