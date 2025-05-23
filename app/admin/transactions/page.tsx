@@ -8,18 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Check, Edit, Trash } from "lucide-react";
+import { Check } from "lucide-react";
 import type { SearchParams } from "next/dist/server/request/search-params";
 import {
   formatDate,
@@ -98,7 +87,10 @@ export default async function TransactionsPage({
                 <TableCell>
                   <div className="flex space-x-2">
                     {transaction.status === "PENDING" ? (
-                      <Verify transactionId={transaction.id} />
+                      <Verify
+                        transactionId={transaction.id}
+                        bookingId={transaction.bookingId}
+                      />
                     ) : (
                       <Button
                         variant="ghost"

@@ -11,19 +11,21 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Check } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { confirmPayment } from "@/app/actions/admin";
 
 interface VerifyProps {
   transactionId: string;
+  bookingId: string;
 }
 
-export default function Verify({ transactionId }: VerifyProps) {
+export default function Verify({ transactionId, bookingId }: VerifyProps) {
   const [note, setNote] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const preloadRef = useRef(false);
 
   const handleVerify = async () => {
     setIsLoading(true);
@@ -50,10 +52,28 @@ export default function Verify({ transactionId }: VerifyProps) {
     }
   };
 
+  const imageSrc = `/user-content/booking/payment/${bookingId}.webp`;
+
+  const preloadImage = () => {
+    if (preloadRef.current) {
+      return;
+    }
+
+    preloadRef.current = true;
+
+    const img = new Image();
+    img.src = imageSrc;
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button
+          variant="ghost"
+          size="icon"
+          onMouseEnter={preloadImage}
+          onFocus={preloadImage}
+        >
           <Check className="h-4 w-4" />
         </Button>
       </DialogTrigger>
@@ -62,13 +82,17 @@ export default function Verify({ transactionId }: VerifyProps) {
           <DialogTitle>Payment Verification</DialogTitle>
           <DialogDescription>Payment ID: {transactionId}</DialogDescription>
         </DialogHeader>
-        <Textarea
-          placeholder="Payment note"
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          required
-          className="my-4"
-        />
+        <div>
+          <img src={imageSrc} />
+
+          <Textarea
+            placeholder="Payment note"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            required
+            className="my-4"
+          />
+        </div>
         <DialogFooter>
           <Button variant="outline">Cancel</Button>
           <Button disabled={isLoading} onClick={handleVerify}>

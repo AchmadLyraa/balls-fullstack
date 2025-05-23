@@ -1,5 +1,6 @@
 "use server";
 
+import fs from "fs/promises";
 import {
   BookingStatus,
   type PaymentMethod,
@@ -8,6 +9,7 @@ import {
 } from "@prisma/client";
 import { prisma, getUser, User } from "@/lib/server-auth";
 import { z } from "zod";
+import sharp from "sharp";
 
 // Validation schema
 const createBookingSchema = z.object({
@@ -167,27 +169,27 @@ export async function uploadPaymentProof(formData: FormData) {
       };
     }
 
-    // In a real application, you would upload the image to a storage service
-    // and get a URL to store in the database
-    const proofImageUrl = "/placeholder.svg"; // Placeholder for demo
-
-    // Create payment
-    const payment = await prisma.payment.create({
-      data: {
-        bookingId,
-        userId: user.id,
-        amount: Number.parseFloat(amount),
-        method: paymentMethod as PaymentMethod,
-        status: PaymentStatus.PENDING,
-        transactionId: "TRX-" + Math.floor(Math.random() * 1000000),
-      },
-    });
-
-    // Update booking status
-    await prisma.booking.update({
-      where: { id: bookingId },
-      data: { status: BookingStatus.PENDING },
-    });
+    const [payment] = await Promise.all([
+      prisma.payment.create({
+        data: {
+          bookingId,
+          userId: user.id,
+          amount: Number.parseFloat(amount),
+          method: paymentMethod as PaymentMethod,
+          status: PaymentStatus.PENDING,
+          transactionId: "TRX-" + Math.floor(Math.random() * 1000000),
+        },
+      }),
+      prisma.booking.update({
+        where: { id: bookingId },
+        data: { status: BookingStatus.PENDING },
+      }),
+      proofImage.bytes().then(async (data) => {
+        await sharp(data)
+          .webp()
+          .toFile(`./public/user-content/booking/payment/${bookingId}.webp`);
+      }),
+    ]);
 
     return { success: true, paymentId: payment.id };
   } catch (error) {

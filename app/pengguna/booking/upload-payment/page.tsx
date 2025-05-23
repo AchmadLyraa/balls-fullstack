@@ -7,14 +7,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import Header from "../header";
 
 interface UploadPaymentPageProps {
-  searchParams: SearchParams;
+  searchParams: Promise<SearchParams>;
 }
 
 export default async function UploadPaymentPage({
   searchParams,
 }: UploadPaymentPageProps) {
   const user = await requireAuth("CUSTOMER");
-  const bookingId = searchParams.bookingId;
+  const bookingId = (await searchParams).bookingId;
   if (typeof bookingId !== "string") {
     notFound();
   }
