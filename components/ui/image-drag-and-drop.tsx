@@ -5,8 +5,8 @@ import { Upload } from "lucide-react";
 import { Button } from "./button";
 
 interface ImageDragAndDropProps {
-  file: File | undefined;
-  setFile: Dispatch<SetStateAction<File | undefined>>;
+  file: File | undefined | null;
+  setFile: Dispatch<SetStateAction<File | undefined | null>>;
 }
 
 export default function ImageDragAndDrop({

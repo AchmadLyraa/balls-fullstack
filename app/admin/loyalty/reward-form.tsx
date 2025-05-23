@@ -17,7 +17,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { editLoyaltyProgram } from "@/app/actions/loyalty";
+import {
+  createLoyaltyProgram,
+  editLoyaltyProgram,
+} from "@/app/actions/loyalty";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Popover,
@@ -26,10 +29,10 @@ import {
 } from "@/components/ui/popover";
 import { cn, formatDateDMY } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
-import { loyaltyFormSchema } from "./schema";
+import { getLoyaltyFormSchema } from "./schema";
 import ImageDragAndDrop from "@/components/ui/image-drag-and-drop";
 
-type Form = z.infer<typeof loyaltyFormSchema>;
+type Form = z.infer<ReturnType<typeof getLoyaltyFormSchema>>;
 
 type FilterKeys<T> = {
   [K in keyof T]: NonNullable<T[K]> extends string | number ? K : never;
@@ -38,7 +41,7 @@ type FilterKeys<T> = {
 type RewardFormProps =
   | {
       programId: string;
-      defaultValues: Form;
+      defaultValues: Omit<Form, "thumbnail">;
       setIsOpen: Dispatch<SetStateAction<boolean>>;
     }
   | {
@@ -54,10 +57,8 @@ export default function RewardForm({
 }: RewardFormProps) {
   const [isLoading, setIsLoading] = useState(false);
 
-  const [file, setFile] = useState<File | undefined>();
-
   const form = useForm<Form>({
-    resolver: zodResolver(loyaltyFormSchema),
+    resolver: zodResolver(getLoyaltyFormSchema(Boolean(defaultValues))),
     defaultValues: defaultValues ?? { isActive: true },
   });
 
@@ -65,15 +66,14 @@ export default function RewardForm({
     setIsLoading(true);
 
     try {
-      if (programId) {
-        const result = await editLoyaltyProgram(programId, data, file);
+      const result = programId
+        ? await editLoyaltyProgram(programId, data)
+        : await createLoyaltyProgram(data);
 
-        if (result.success) {
-          toast.success(result.message);
-        } else {
-          toast.error(result.error);
-        }
+      if (result.success) {
+        toast.success(result.message);
       } else {
+        toast.error(result.error);
       }
     } catch {
       toast.error(
@@ -85,7 +85,7 @@ export default function RewardForm({
     }
   };
 
-  const createInput = <TName extends FilterKeys<Form>>(
+  const createInput = <TName extends NonNullable<FilterKeys<Form>>>(
     name: string,
     type?: "number",
     className?: string,
@@ -150,8 +150,10 @@ export default function RewardForm({
                     >
                       <Calendar
                         mode="single"
-                        selected={field.value || undefined}
-                        onSelect={field.onChange}
+                        selected={field.value ?? undefined}
+                        onSelect={(date) => {
+                          field.onChange(date ?? null);
+                        }}
                         disabled={(date) => date < new Date()}
                         initialFocus
                       />
@@ -196,8 +198,10 @@ export default function RewardForm({
                     >
                       <Calendar
                         mode="single"
-                        selected={field.value || undefined}
-                        onSelect={field.onChange}
+                        selected={field.value ?? undefined}
+                        onSelect={(date) => {
+                          field.onChange(date ?? null);
+                        }}
                         disabled={(date) =>
                           date < (form.getValues().startDate || new Date())
                         }
@@ -240,15 +244,21 @@ export default function RewardForm({
           />
         </div>
 
-        <FormItem>
-          <div>
-            <FormLabel>Thumbnail</FormLabel>
-          </div>
-          <FormControl>
-            <ImageDragAndDrop file={file} setFile={setFile} />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
+        <FormField
+          control={form.control}
+          name="thumbnail"
+          render={({ field }) => (
+            <FormItem>
+              <div>
+                <FormLabel>Thumbnail</FormLabel>
+              </div>
+              <FormControl>
+                <ImageDragAndDrop file={field.value} setFile={field.onChange} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <DialogFooter className="mt-6">
           <Button

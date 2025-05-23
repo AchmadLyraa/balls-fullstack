@@ -5,7 +5,7 @@ import { RedemptionStatus, SourceType } from "@prisma/client";
 import { prisma, getUser } from "@/lib/server-auth";
 import { revalidatePath } from "next/cache";
 import z from "zod";
-import { loyaltyFormSchema } from "../admin/loyalty/schema";
+import { getLoyaltyFormSchema } from "../admin/loyalty/schema";
 
 export async function redeemLoyaltyProgram(programId: string): Promise<
   | {
@@ -160,8 +160,7 @@ export async function changeRedemptionStatus(
 
 export async function editLoyaltyProgram(
   programId: string,
-  data: z.infer<typeof loyaltyFormSchema>,
-  image?: File,
+  rawData: z.infer<ReturnType<typeof getLoyaltyFormSchema>>,
 ) {
   const user = await getUser();
 
@@ -170,16 +169,18 @@ export async function editLoyaltyProgram(
   }
 
   try {
+    const { thumbnail, ...data } = getLoyaltyFormSchema(true).parse(rawData);
+
     const promises: Promise<unknown>[] = [
       prisma.loyaltyProgram.update({
         where: { id: programId },
-        data: loyaltyFormSchema.parse(data),
+        data: data,
       }),
     ];
 
-    if (image) {
+    if (thumbnail) {
       promises.push(
-        image.bytes().then((bytes) => {
+        thumbnail.bytes().then((bytes) => {
           return sharp(bytes)
             .webp()
             .toFile(`./public/content/loyalty/${programId}.webp`);
@@ -192,6 +193,44 @@ export async function editLoyaltyProgram(
     revalidatePath("admin/loyalty");
 
     return { success: true, message: "Loyalty program edited successfully" };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { success: false, error: error.errors[0].message };
+    }
+
+    if (error instanceof Error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: false, error: "An unknown error occurred" };
+  }
+}
+
+export async function createLoyaltyProgram(
+  rawData: z.infer<ReturnType<typeof getLoyaltyFormSchema>>,
+) {
+  const user = await getUser();
+
+  if (!user || (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN")) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    const { thumbnail, ...data } = getLoyaltyFormSchema(false).parse(rawData);
+    const imagePromise = thumbnail!
+      .bytes()
+      .then((bytes) => sharp(bytes).webp());
+    const loyalty = await prisma.loyaltyProgram.create({
+      data,
+    });
+
+    await (
+      await imagePromise
+    ).toFile(`./public/content/loyalty/${loyalty.id}.webp`);
+
+    revalidatePath("admin/loyalty");
+
+    return { success: true, message: "Loyalty program created successfully" };
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { success: false, error: error.errors[0].message };

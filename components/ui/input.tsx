@@ -16,7 +16,7 @@ const Input = React.forwardRef<
         className,
       )}
       ref={ref}
-      value={value === null ? "" : value}
+      value={value === null || value === undefined ? "" : value}
       {...props}
     />
   );

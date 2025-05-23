@@ -74,14 +74,16 @@ export default function LoyaltyClient({
           <div className="mb-6 flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold">Loyalty Card Digital</h1>
-              <p className="text-gray-500">Pilih hadiah dan tukar poin kamu!</p>
+              <p className="text-gray-500">
+                Choose your rewards and redeem your points!
+              </p>
             </div>
             <Link
               href="/pengguna/loyalty/points"
               className="block rounded-lg bg-red-600 px-4 py-2 text-white"
             >
-              <p className="text-sm">Your Points</p>
-              <p className="text-2xl font-bold">{userPoints}</p>
+              <p className="text-center text-sm">Your Points</p>
+              <p className="text-center text-2xl font-bold">{userPoints}</p>
             </Link>
           </div>
 
@@ -100,12 +102,9 @@ export default function LoyaltyClient({
                   >
                     <div className="relative h-40 w-full">
                       <img
-                        src={
-                          program.imageUrl ||
-                          "/placeholder.svg?height=200&width=200"
-                        }
+                        src={`/content/loyalty/${program.id}.webp?t=${program.updatedAt.getTime()}`}
                         alt={program.programName}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full"
                       />
 
                       <span className="absolute right-2 top-2 rounded-full border border-red-400 bg-red-100 px-2 py-1 text-xs text-red-800">
