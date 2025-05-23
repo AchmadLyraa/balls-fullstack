@@ -35,6 +35,16 @@ export function formatDateYMD(date: Date) {
   );
 }
 
+export function formatDateDMY(date: Date) {
+  return (
+    date.getUTCDay().toString().padStart(2, "0") +
+    "-" +
+    date.getUTCMonth().toString().padStart(2, "0") +
+    "-" +
+    date.getUTCFullYear()
+  );
+}
+
 export function ucFirst(str: string) {
   if (str === "") {
     return "";

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import QRCode from "react-qr-code";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -75,10 +76,13 @@ export default function LoyaltyClient({
               <h1 className="text-2xl font-bold">Loyalty Card Digital</h1>
               <p className="text-gray-500">Pilih hadiah dan tukar poin kamu!</p>
             </div>
-            <div className="rounded-lg bg-red-600 px-4 py-2 text-white">
+            <Link
+              href="/pengguna/loyalty/points"
+              className="block rounded-lg bg-red-600 px-4 py-2 text-white"
+            >
               <p className="text-sm">Your Points</p>
               <p className="text-2xl font-bold">{userPoints}</p>
-            </div>
+            </Link>
           </div>
 
           <Tabs defaultValue="rewards" className="space-y-4">
