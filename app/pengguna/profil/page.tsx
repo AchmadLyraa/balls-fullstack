@@ -1,14 +1,13 @@
-import { requireAuth } from "@/lib/server-auth";
-import { getUserById } from "@/lib/auth";
+import { prisma, requireAuth } from "@/lib/server-auth";
 import ProfileForm from "./profile-form";
 
 export default async function ProfilePage() {
-  const user = await requireAuth("CUSTOMER");
-  const userDetails = await getUserById(user.id);
-
-  if (!userDetails) {
-    return <div>User not found</div>;
-  }
+  const { id } = await requireAuth("CUSTOMER");
+  const user = await prisma.user.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
 
   return (
     <div className="space-y-6">
@@ -19,7 +18,7 @@ export default async function ProfilePage() {
         </p>
       </div>
 
-      <ProfileForm user={userDetails} />
+      <ProfileForm user={user} />
     </div>
   );
 }

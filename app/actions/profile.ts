@@ -6,7 +6,13 @@ import { z } from "zod";
 // Validation schema
 const updateProfileSchema = z.object({
   fullName: z.string().min(3, "Full name must be at least 3 characters"),
-  phoneNumber: z.string().optional(),
+  phoneNumber: z
+    .string()
+    .transform((val) => val.replace(/[\s-]/g, ""))
+    .refine((val) => /^(?:08|\+?62)[0-9]{5,16}$/.test(val), {
+      message: "Phone number is invalid",
+    })
+    .optional(),
 });
 
 export async function updateProfile(formData: FormData) {
@@ -19,23 +25,17 @@ export async function updateProfile(formData: FormData) {
     };
   }
 
-  const fullName = formData.get("fullName") as string;
-  const phoneNumber = (formData.get("phoneNumber") as string) || null;
-
   try {
     // Validate form data
-    updateProfileSchema.parse({
-      fullName,
-      phoneNumber,
+    const data = updateProfileSchema.parse({
+      fullName: formData.get("fullName"),
+      phoneNumber: formData.get("phoneNumber"),
     });
 
     // Update user
     await prisma.user.update({
       where: { id: user.id },
-      data: {
-        fullName,
-        phoneNumber,
-      },
+      data,
     });
 
     return { success: true };
