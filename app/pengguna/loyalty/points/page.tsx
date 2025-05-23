@@ -1,6 +1,6 @@
 import { prisma, requireAuth } from "@/lib/server-auth";
 import { Card, CardContent } from "@/components/ui/card";
-import { formatDateDMY } from "@/lib/utils";
+import { formatUtcDateDMY } from "@/lib/utils";
 
 export default async function LoyaltyPage() {
   const user = await requireAuth("CUSTOMER");
@@ -39,9 +39,9 @@ export default async function LoyaltyPage() {
                   </div>
                   <div className="text-right">
                     <p className="text-sm text-gray-500">
-                      {formatDateDMY(point.createdAt)} -{" "}
+                      {formatUtcDateDMY(point.createdAt)} -{" "}
                       {point.expiryDate
-                        ? formatDateDMY(point.expiryDate)
+                        ? formatUtcDateDMY(point.expiryDate)
                         : " Forever"}
                     </p>
                   </div>

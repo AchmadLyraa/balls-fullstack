@@ -4,7 +4,10 @@ import Rewards from "./rewards";
 import Redemptions from "./redemptions";
 
 export function getRewards() {
-  return prisma.loyaltyProgram.findMany();
+  return prisma.loyaltyProgram.findMany({
+    where: { deletedAt: null },
+    orderBy: { id: "desc" },
+  });
 }
 
 export function getRedemptions() {

@@ -31,17 +31,27 @@ export function formatDateYMD(date: Date) {
     "-" +
     date.getUTCMonth().toString().padStart(2, "0") +
     "-" +
-    date.getUTCDay().toString().padStart(2, "0")
+    date.getUTCDate().toString().padStart(2, "0")
+  );
+}
+
+export function formatUtcDateDMY(date: Date) {
+  return (
+    date.getUTCDate().toString().padStart(2, "0") +
+    "-" +
+    date.getUTCMonth().toString().padStart(2, "0") +
+    "-" +
+    date.getUTCFullYear()
   );
 }
 
 export function formatDateDMY(date: Date) {
   return (
-    date.getUTCDay().toString().padStart(2, "0") +
+    date.getDate().toString().padStart(2, "0") +
     "-" +
-    date.getUTCMonth().toString().padStart(2, "0") +
+    date.getMonth().toString().padStart(2, "0") +
     "-" +
-    date.getUTCFullYear()
+    date.getFullYear()
   );
 }
 

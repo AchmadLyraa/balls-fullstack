@@ -3,7 +3,7 @@ import LoyaltyClient from "./loyalty-client";
 
 export function getLoyaltyPrograms() {
   return prisma.loyaltyProgram.findMany({
-    where: { isActive: true },
+    where: { isActive: true, deletedAt: null },
     orderBy: { pointsRequired: "asc" },
   });
 }
