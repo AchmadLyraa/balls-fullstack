@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import type { UserJwtPayload } from "@/lib/auth"
-import { toast } from "sonner"
+import { useState } from "react";
+import QRCode from "react-qr-code";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -13,111 +13,71 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { QrCode } from "lucide-react"
-import { getUserPoints, getLoyaltyPrograms, getUserRedemptions, redeemLoyaltyProgram } from "@/app/actions/loyalty"
+} from "@/components/ui/dialog";
+import { redeemLoyaltyProgram } from "@/app/actions/loyalty";
+import type { getLoyaltyPrograms, getUserRedemptions } from "./page";
 
 interface LoyaltyClientProps {
-  user: UserJwtPayload
+  loyaltyPrograms: Awaited<ReturnType<typeof getLoyaltyPrograms>>;
+  userPoints: number;
+  userRedemptions: Awaited<ReturnType<typeof getUserRedemptions>>;
 }
 
-export default function LoyaltyClient({ user }: LoyaltyClientProps) {
-  const [selectedProgram, setSelectedProgram] = useState<any | null>(null)
-  const [showQrCode, setShowQrCode] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const [userPoints, setUserPoints] = useState<any>(null)
-  const [loyaltyPrograms, setLoyaltyPrograms] = useState<any[]>([])
-  const [redemptionHistory, setRedemptionHistory] = useState<any[]>([])
-
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [pointsData, programsData, redemptionsData] = await Promise.all([
-          getUserPoints(),
-          getLoyaltyPrograms(),
-          getUserRedemptions(),
-        ])
-
-        setUserPoints(pointsData)
-        setLoyaltyPrograms(programsData || [])
-        setRedemptionHistory(redemptionsData || [])
-      } catch (error) {
-        console.error("Error loading loyalty data:", error)
-        toast.error("Failed to load loyalty data")
-      } finally {
-        setIsLoading(false)
+export default function LoyaltyClient({
+  loyaltyPrograms,
+  userPoints,
+  userRedemptions,
+}: LoyaltyClientProps) {
+  const [showDialog, setShowDialog] = useState(false);
+  const [dialogData, setDialogData] = useState<
+    | {
+        redemptionId: string;
+        programId: string;
       }
-    }
+    | {
+        text: string;
+        buttonText: string;
+        handler(): void;
+      }
+    | null
+  >(null);
 
-    loadData()
-  }, [])
-
-  const handleRedeemProgram = async (program: any) => {
-    if (!userPoints || userPoints.points < program.pointsRequired) {
-      toast.error("You don't have enough points to redeem this reward")
-      return
+  const handleRedeemProgram = async (
+    program: (typeof loyaltyPrograms)[number],
+  ) => {
+    if (!userPoints || userPoints < program.pointsRequired) {
+      toast.error("You don't have enough points to redeem this reward");
+      return;
     }
 
     try {
-      const result = await redeemLoyaltyProgram(program.id)
+      const result = await redeemLoyaltyProgram(program.id);
 
       if (result.success) {
-        setSelectedProgram(program)
-        setShowQrCode(true)
+        setDialogData(result);
+        setShowDialog(true);
 
-        // Update points count
-        setUserPoints({
-          ...userPoints,
-          points: userPoints.points - program.pointsRequired,
-        })
-
-        // Add to redemption history
-        setRedemptionHistory([
-          {
-            id: result.redemptionId,
-            loyaltyProgram: program,
-            pointsUsed: program.pointsRequired,
-            status: "PENDING",
-            redemptionDate: new Date().toISOString(),
-          },
-          ...redemptionHistory,
-        ])
-
-        toast.success("Reward redeemed successfully!")
+        toast.success("Reward redeemed successfully!");
       } else {
-        toast.error(result.error || "Failed to redeem reward")
+        toast.error(result.error || "Failed to redeem reward");
       }
     } catch (error) {
-      toast.error("An unexpected error occurred")
+      toast.error("An unexpected error occurred");
     }
-  }
-
-  if (isLoading) {
-    return (
-      <div className="max-w-4xl mx-auto">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex justify-center items-center h-40">
-              <p>Loading loyalty data...</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
+  };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="mx-auto max-w-4xl">
       <Card>
         <CardContent className="p-6">
-          <div className="flex justify-between items-center mb-6">
+          <div className="mb-6 flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold">Loyalty Card Digital</h1>
               <p className="text-gray-500">Pilih hadiah dan tukar poin kamu!</p>
             </div>
-            <div className="bg-red-600 text-white px-4 py-2 rounded-lg">
+            <div className="rounded-lg bg-red-600 px-4 py-2 text-white">
               <p className="text-sm">Your Points</p>
-              <p className="text-2xl font-bold">{userPoints?.points || 0}</p>
+              <p className="text-2xl font-bold">{userPoints}</p>
             </div>
           </div>
 
@@ -128,30 +88,54 @@ export default function LoyaltyClient({ user }: LoyaltyClientProps) {
             </TabsList>
 
             <TabsContent value="rewards" className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {loyaltyPrograms.map((program) => (
-                  <Card key={program.id} className="overflow-hidden">
-                    <img
-                      src={program.imageUrl || "/placeholder.svg?height=200&width=200"}
-                      alt={program.programName}
-                      className="w-full h-40 object-cover"
-                    />
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-medium">{program.programName}</h3>
-                        <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
-                          {program.pointsRequired} Points
-                        </span>
+                  <Card
+                    key={program.id}
+                    className="flex flex-col overflow-hidden"
+                  >
+                    <div className="relative h-40 w-full">
+                      <img
+                        src={
+                          program.imageUrl ||
+                          "/placeholder.svg?height=200&width=200"
+                        }
+                        alt={program.programName}
+                        className="h-full w-full object-cover"
+                      />
+
+                      <span className="absolute right-2 top-2 rounded-full border border-red-400 bg-red-100 px-2 py-1 text-xs text-red-800">
+                        {program.pointsRequired} Points
+                      </span>
+                    </div>
+                    <CardContent className="flex flex-1 flex-col gap-2 p-4">
+                      <h3 className="font-medium">{program.programName}</h3>
+                      <p className="text-sm text-gray-500">
+                        {program.description}
+                      </p>
+                      <div className="mt-2 flex flex-1 flex-col-reverse">
+                        <Button
+                          onClick={() => {
+                            setDialogData({
+                              text: `Are you sure you want to exchange ${program.pointsRequired} points for "${program.programName}"?`,
+                              buttonText: "Sure",
+                              handler() {
+                                handleRedeemProgram(program);
+                              },
+                            });
+                            setShowDialog(true);
+                          }}
+                          disabled={
+                            !userPoints || userPoints < program.pointsRequired
+                          }
+                          className="w-full bg-red-600 hover:bg-red-700"
+                          size="sm"
+                        >
+                          {!userPoints || userPoints < program.pointsRequired
+                            ? "Not Enough Points"
+                            : "Redeem"}
+                        </Button>
                       </div>
-                      <p className="text-sm text-gray-500 mb-2">{program.description}</p>
-                      <Button
-                        onClick={() => handleRedeemProgram(program)}
-                        disabled={!userPoints || userPoints.points < program.pointsRequired}
-                        className="w-full mt-2 bg-red-600 hover:bg-red-700"
-                        size="sm"
-                      >
-                        {!userPoints || userPoints.points < program.pointsRequired ? "Not Enough Points" : "Redeem"}
-                      </Button>
                     </CardContent>
                   </Card>
                 ))}
@@ -159,19 +143,39 @@ export default function LoyaltyClient({ user }: LoyaltyClientProps) {
             </TabsContent>
 
             <TabsContent value="history">
-              {redemptionHistory.length > 0 ? (
+              {userRedemptions.length > 0 ? (
                 <div className="space-y-4">
-                  {redemptionHistory.map((item) => (
-                    <Card key={item.id}>
-                      <CardContent className="p-4 flex justify-between items-center">
+                  {userRedemptions.map((item) => (
+                    <Card
+                      key={item.id}
+                      onClick={() => {
+                        if (item.status === "PENDING") {
+                          setDialogData({
+                            redemptionId: item.id,
+                            programId: item.loyaltyProgramId,
+                          });
+                          setShowDialog(true);
+                        }
+                      }}
+                      className={
+                        item.status === "PENDING" ? "cursor-pointer" : undefined
+                      }
+                    >
+                      <CardContent className="flex items-center justify-between p-4">
                         <div>
-                          <h3 className="font-medium">{item.loyaltyProgram.programName}</h3>
-                          <p className="text-sm text-gray-500">{item.pointsUsed} Points</p>
+                          <h3 className="font-medium">
+                            {item.loyaltyProgram.programName}
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            {item.pointsUsed} Points
+                          </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm text-gray-500">{new Date(item.redemptionDate).toLocaleDateString()}</p>
+                          <p className="text-sm text-gray-500">
+                            {new Date(item.redemptionDate).toLocaleDateString()}
+                          </p>
                           <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            className={`rounded-full px-2 py-1 text-xs font-medium ${
                               item.status === "COMPLETED"
                                 ? "bg-green-100 text-green-800"
                                 : item.status === "PENDING"
@@ -187,7 +191,7 @@ export default function LoyaltyClient({ user }: LoyaltyClientProps) {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8">
+                <div className="py-8 text-center">
                   <p className="text-gray-500">No redemption history yet</p>
                 </div>
               )}
@@ -196,22 +200,58 @@ export default function LoyaltyClient({ user }: LoyaltyClientProps) {
         </CardContent>
       </Card>
 
-      <Dialog open={showQrCode} onOpenChange={setShowQrCode}>
+      <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Tunjukkan QR Code ini kepada kasir BAS!</DialogTitle>
-            <DialogDescription>Scan this QR code to redeem your reward</DialogDescription>
+            <DialogTitle>
+              {dialogData && "text" in dialogData
+                ? "Hold on!"
+                : "Show this QR Code to the BAS cashier!"}
+            </DialogTitle>
+            {dialogData && "redemptionId" in dialogData && (
+              <DialogDescription>
+                Scan this QR code to redeem your reward
+              </DialogDescription>
+            )}
           </DialogHeader>
-          <div className="flex justify-center py-4">
-            <div className="bg-white p-4 rounded-lg border">
-              <QrCode className="w-48 h-48" />
-            </div>
-          </div>
+          {dialogData &&
+            ("text" in dialogData ? (
+              <p>{dialogData.text}</p>
+            ) : (
+              <div className="py-4">
+                <p className="mb-2 text-center text-xl font-bold">
+                  {
+                    loyaltyPrograms.find(
+                      (program) => program.id === dialogData.programId,
+                    )?.programName
+                  }
+                </p>
+
+                <div className="flex justify-center">
+                  <div className="rounded-lg border bg-white p-4">
+                    <QRCode
+                      value={dialogData.redemptionId}
+                      className="h-48 w-48"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
           <DialogFooter>
-            <Button onClick={() => setShowQrCode(false)}>Oke</Button>
+            <Button
+              onClick={() =>
+                dialogData && "handler" in dialogData
+                  ? dialogData.handler()
+                  : setShowDialog(false)
+              }
+            >
+              {dialogData && "buttonText" in dialogData
+                ? dialogData.buttonText
+                : "Done"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

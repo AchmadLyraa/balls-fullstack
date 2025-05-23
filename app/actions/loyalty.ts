@@ -3,55 +3,22 @@
 import { RedemptionStatus, SourceType } from "@prisma/client";
 import { prisma, getUser } from "@/lib/server-auth";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
-export async function getUserPoints() {
-  const user = await getUser();
-
-  if (!user) {
-    redirect("/auth/login");
-  }
-
-  try {
-    // Find user points
-    let userPoint = await prisma.userPoint.findFirst({
-      where: { userId: user.id, isActive: true },
-    });
-
-    if (!userPoint) {
-      userPoint = await prisma.userPoint.create({
-        data: {
-          userId: user.id,
-          points: 0,
-          isActive: true,
-          expiryDate: new Date(
-            new Date().setFullYear(new Date().getFullYear() + 1),
-          ),
-        },
-      });
+export async function redeemLoyaltyProgram(programId: string): Promise<
+  | {
+      success: false;
+      redemptionId?: undefined;
+      programId?: undefined;
+      error: string;
     }
-
-    return userPoint;
-  } catch (error) {
-    console.error("Error fetching user points:", error);
-    return null;
-  }
-}
-
-export async function getLoyaltyPrograms() {
-  try {
-    const programs = await prisma.loyaltyProgram.findMany({
-      where: { isActive: true },
-      orderBy: { pointsRequired: "asc" },
-    });
-
-    return programs;
-  } catch (error) {
-    console.error("Error fetching loyalty programs:", error);
-    return [];
-  }
-}
-
-export async function redeemLoyaltyProgram(programId: string) {
+  | {
+      success: true;
+      redemptionId: string;
+      programId: string;
+      error?: undefined;
+    }
+> {
   const user = await getUser();
 
   if (!user) {
@@ -69,37 +36,75 @@ export async function redeemLoyaltyProgram(programId: string) {
     }
 
     // Get user's points
-    const userPoint = await prisma.userPoint.findFirst({
-      where: { userId: user.id, isActive: true },
+    const userPoints = await prisma.userPoint.findMany({
+      where: {
+        userId: user.id,
+        isActive: true,
+        points: {
+          gt: 0,
+        },
+        expiryDate: {
+          gt: new Date(),
+        },
+      },
+      orderBy: [
+        {
+          expiryDate: "asc",
+        },
+        {
+          createdAt: "asc",
+        },
+      ],
     });
 
-    if (!userPoint) {
+    if (!userPoints.length) {
       return { success: false, error: "User points not found" };
     }
 
+    const points = userPoints.reduce((total, point) => {
+      return total + point.points;
+    }, 0);
+
     // Check if user has enough points
-    if (userPoint.points < program.pointsRequired) {
+    if (points < program.pointsRequired) {
       return {
         success: false,
         error: "Not enough points to redeem this reward",
       };
     }
 
-    // Create redemption
-    const redemption = await prisma.redemption.create({
-      data: {
-        userId: user.id,
-        loyaltyProgramId: program.id,
-        pointsUsed: program.pointsRequired,
-        status: RedemptionStatus.PENDING,
-      },
-    });
+    let reducedPoints = 0;
+    let requiredPoints = program.pointsRequired;
+    const updatePromises: Promise<unknown>[] = [];
 
-    // Update user points
-    await prisma.userPoint.update({
-      where: { id: userPoint.id },
-      data: { points: userPoint.points - program.pointsRequired },
-    });
+    for (const point of userPoints) {
+      const reduce = Math.min(point.points, requiredPoints);
+      reducedPoints += reduce;
+      requiredPoints -= reduce;
+
+      updatePromises.push(
+        prisma.userPoint.update({
+          where: { id: point.id },
+          data: { points: point.points - reduce },
+        }),
+      );
+
+      if (requiredPoints <= 0) {
+        break;
+      }
+    }
+
+    const [redemption] = await Promise.all([
+      prisma.redemption.create({
+        data: {
+          userId: user.id,
+          loyaltyProgramId: program.id,
+          pointsUsed: program.pointsRequired,
+          status: RedemptionStatus.PENDING,
+        },
+      }),
+      ...updatePromises,
+    ]);
 
     // Create point source record
     await prisma.pointSource.create({
@@ -111,7 +116,13 @@ export async function redeemLoyaltyProgram(programId: string) {
       },
     });
 
-    return { success: true, redemptionId: redemption.id };
+    revalidatePath("/pengguna/loyalty");
+
+    return {
+      success: true,
+      redemptionId: redemption.id,
+      programId: program.id,
+    };
   } catch (error) {
     if (error instanceof Error) {
       return { success: false, error: error.message };
