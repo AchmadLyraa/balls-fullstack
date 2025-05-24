@@ -1,6 +1,5 @@
 "use server";
 
-import fs from "fs/promises";
 import {
   BookingStatus,
   type PaymentMethod,
@@ -10,6 +9,7 @@ import {
 import { prisma, getUser, User } from "@/lib/server-auth";
 import { z } from "zod";
 import sharp from "sharp";
+import { revalidatePath } from "next/cache";
 
 // Validation schema
 const createBookingSchema = z.object({
@@ -212,14 +212,9 @@ export async function cancelBooking(bookingId: string) {
   }
 
   try {
-    // Validate booking
-    const booking = await prisma.booking.findUnique({
+    const booking = await prisma.booking.findUniqueOrThrow({
       where: { id: bookingId },
     });
-
-    if (!booking) {
-      return { success: false, error: "Booking not found" };
-    }
 
     if (
       booking.userId !== user.id &&
@@ -232,17 +227,22 @@ export async function cancelBooking(bookingId: string) {
       };
     }
 
-    // Update booking status
-    await prisma.booking.update({
-      where: { id: bookingId },
-      data: { status: BookingStatus.CANCELLED },
-    });
+    if (booking.status !== "PENDING") {
+      return { success: false, error: "Invalid state" };
+    }
 
-    // Update payment status if exists
-    await prisma.payment.updateMany({
-      where: { bookingId },
-      data: { status: PaymentStatus.CANCELLED },
-    });
+    await Promise.all([
+      prisma.booking.update({
+        where: { id: bookingId },
+        data: { status: BookingStatus.CANCELLED },
+      }),
+      prisma.payment.updateMany({
+        where: { bookingId },
+        data: { status: PaymentStatus.CANCELLED },
+      }),
+    ]);
+
+    revalidatePath("admin/bookings");
 
     return { success: true };
   } catch (error) {
@@ -393,6 +393,8 @@ export async function setPlayersToBooking(formData: FormData) {
   const shouldAddPointNow =
     booking.status === "CONFIRMED" || booking.status === "COMPLETED";
 
+  const points = Math.round((Number(booking.duration) * 20) / userIds.length);
+
   await Promise.all([
     prisma.player.createMany({
       data: players.map((player) => ({
@@ -413,7 +415,7 @@ export async function setPlayersToBooking(formData: FormData) {
         data: userIds.map((user) => ({
           bookingId: bookingId,
           userId: user.id,
-          points: 10,
+          points,
         })),
       }),
 
@@ -423,7 +425,7 @@ export async function setPlayersToBooking(formData: FormData) {
           sourceId: bookingId,
           sourceType: "BOOKING",
           userId: user.id,
-          points: 10,
+          points,
         })),
       }),
   ]);
@@ -439,65 +441,51 @@ export async function completeBooking(bookingId: string) {
   }
 
   try {
-    const booking = await prisma.booking.findUnique({
+    const booking = await prisma.booking.findUniqueOrThrow({
       where: { id: bookingId },
-      include: { field: true },
+      include: { bookingUser: { select: { userId: true } } },
     });
 
-    if (!booking) {
-      return { success: false, error: "Booking not found" };
+    if (booking.status !== "PENDING") {
+      return { success: false, error: "Invalid state" };
     }
 
-    // Update booking status
-    await prisma.booking.update({
-      where: { id: bookingId },
-      data: { status: BookingStatus.COMPLETED },
+    const userIds = [booking.userId];
+    booking.bookingUser.forEach((user) => {
+      userIds.push(user.userId);
     });
 
-    // Calculate points (10 points per hour)
-    const points = Math.round(Number(booking.duration) * 10);
+    const points = Math.round((Number(booking.duration) * 20) / userIds.length);
 
-    // Add points to user
-    const userPoint = await prisma.userPoint.findFirst({
-      where: { userId: booking.userId },
-    });
+    const expiryDate = new Date();
+    expiryDate.setFullYear(expiryDate.getFullYear() + 1);
 
-    if (userPoint) {
-      await prisma.userPoint.update({
-        where: { id: userPoint.id },
-        data: { points: userPoint.points + points },
-      });
-    } else {
-      await prisma.userPoint.create({
-        data: {
-          userId: booking.userId,
-          points: points,
+    await Promise.all([
+      prisma.booking.update({
+        where: { id: bookingId },
+        data: { status: BookingStatus.COMPLETED },
+      }),
+
+      prisma.userPoint.createMany({
+        data: userIds.map((userId) => ({
+          userId,
+          points,
           isActive: true,
-          expiryDate: new Date(
-            new Date().setFullYear(new Date().getFullYear() + 1),
-          ),
-        },
-      });
-    }
+          expiryDate,
+        })),
+      }),
 
-    // Create booking points record
-    await prisma.bookingPoint.create({
-      data: {
-        userId: booking.userId,
-        bookingId: booking.id,
-        points: points,
-      },
-    });
+      prisma.pointSource.createMany({
+        data: userIds.map((userId) => ({
+          sourceId: bookingId,
+          sourceType: "BOOKING",
+          userId,
+          points,
+        })),
+      }),
+    ]);
 
-    // Create point source record
-    await prisma.pointSource.create({
-      data: {
-        userId: booking.userId,
-        sourceId: booking.id,
-        points: points,
-        sourceType: SourceType.BOOKING,
-      },
-    });
+    revalidatePath("admin/bookings");
 
     return { success: true };
   } catch (error) {

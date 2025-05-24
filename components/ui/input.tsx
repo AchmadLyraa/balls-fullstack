@@ -6,7 +6,7 @@ type InputProps = React.ComponentProps<"input">;
 
 const Input = React.forwardRef<
   HTMLInputElement,
-  Omit<InputProps, "value"> & { value: InputProps["value"] | null }
+  Omit<InputProps, "value"> & { value?: InputProps["value"] | null }
 >(({ className, type, value, ...props }, ref) => {
   return (
     <input
@@ -16,7 +16,7 @@ const Input = React.forwardRef<
         className,
       )}
       ref={ref}
-      value={value === null || value === undefined ? "" : value}
+      value={value === null ? "" : value}
       {...props}
     />
   );

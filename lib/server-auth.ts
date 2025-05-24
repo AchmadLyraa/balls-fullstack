@@ -9,7 +9,9 @@ const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
 };
 
-export const prisma = (globalForPrisma.prisma ??= new PrismaClient());
+export const prisma = (globalForPrisma.prisma ??= new PrismaClient({
+  log: [{ level: "query", emit: "stdout" }],
+}));
 
 // Secret key for JWT
 const JWT_SECRET = new TextEncoder().encode(
