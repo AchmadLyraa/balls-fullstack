@@ -1,4 +1,4 @@
-import { requireAuth } from "@/lib/server-auth";
+import { prisma, requireAuth } from "@/lib/server-auth";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,15 +9,20 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { Plus, Users } from "lucide-react";
+import AdminList from "./admin-list";
 
 export default async function SuperAdminDashboardPage() {
   const user = await requireAuth("SUPER_ADMIN");
+
+  const admins = await prisma.user.findMany({
+    where: { role: "ADMIN" },
+  });
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">
-          Manajemen Admin BAS
+          Admin BAS Management
         </h1>
         <p className="text-muted-foreground">
           Welcome, {user.username}! Manage your admin accounts here.
@@ -31,7 +36,7 @@ export default async function SuperAdminDashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1</div>
+            <div className="text-2xl font-bold">{admins.length}</div>
             <p className="text-xs text-muted-foreground">
               Active admin accounts
             </p>
@@ -50,26 +55,7 @@ export default async function SuperAdminDashboardPage() {
           </Link>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Card>
-            <CardHeader>
-              <CardTitle>Azhka - Admin BAS 1</CardTitle>
-              <CardDescription>admin@example.com</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-end space-x-2">
-                <Link href={`/super-admin/edit-admin/1`}>
-                  <Button variant="outline" size="sm">
-                    Edit
-                  </Button>
-                </Link>
-                <Button variant="destructive" size="sm">
-                  Delete
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <AdminList admins={admins} />
       </div>
     </div>
   );
