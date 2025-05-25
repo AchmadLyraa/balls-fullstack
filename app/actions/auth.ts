@@ -58,7 +58,7 @@ export async function registerUser(formData: FormData) {
     });
 
     if (existingUser) {
-      return { success: false, message: "Username atau email sudah digunakan" };
+      return { success: false, message: "Username or email is already in use" };
     }
 
     const hashedPassword = await bcrypt.hash(validated.password, 10);
@@ -75,12 +75,12 @@ export async function registerUser(formData: FormData) {
       },
     });
 
-    return { success: true, message: "Registrasi berhasil, silakan login" };
+    return { success: true, message: "RSuccessful registration, please login" };
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { success: false, message: error.errors[0].message };
     }
-    return { success: false, message: "Terjadi kesalahan saat registrasi" };
+    return { success: false, message: "An unknown error occurred" };
   } finally {
     await prisma.$disconnect();
   }
@@ -94,7 +94,7 @@ export async function loginUser(formData: FormData) {
   if (!emailOrUsername || !password) {
     return {
       success: false,
-      message: "Email/username dan password diperlukan",
+      message: "Email/username and password are required",
     };
   }
 
@@ -113,7 +113,7 @@ export async function loginUser(formData: FormData) {
     if (!user || !(await bcrypt.compare(validated.password, user.password))) {
       return {
         success: false,
-        message: "Email, username, atau password salah",
+        message: "This credentials does not match our records",
       };
     }
 
@@ -130,12 +130,12 @@ export async function loginUser(formData: FormData) {
       maxAge: 60 * 60, // 1 jam
     });
 
-    return { success: true, message: "Login berhasil", role: user.role };
+    return { success: true, message: "", role: user.role };
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { success: false, message: error.errors[0].message };
     }
-    return { success: false, message: "Terjadi kesalahan saat login" };
+    return { success: false, message: "An unknown error occurred" };
   } finally {
     await prisma.$disconnect();
   }

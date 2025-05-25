@@ -17,60 +17,70 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="p-6 bg-white rounded shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-4">Registrasi</h2>
+    <div className="flex min-h-screen items-center justify-center bg-gray-100">
+      <div className="w-96 rounded bg-white p-6 shadow-md">
+        <h2 className="mb-4 text-2xl font-bold">Register</h2>
         {message && <p className="mb-4 text-red-500">{message}</p>}
         <form action={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Username</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Username
+            </label>
             <input
               name="username" // Pastikan sesuai
               type="text"
-              className="mt-1 p-2 w-full border rounded"
+              className="mt-1 w-full rounded border p-2"
               required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Email
+            </label>
             <input
               name="email" // Pastikan sesuai
               type="email"
-              className="mt-1 p-2 w-full border rounded"
+              className="mt-1 w-full rounded border p-2"
               required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Password</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Password
+            </label>
             <input
               name="password" // Pastikan sesuai
               type="password"
-              className="mt-1 p-2 w-full border rounded"
+              className="mt-1 w-full rounded border p-2"
               required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Nama Lengkap</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Fullname
+            </label>
             <input
               name="fullName" // Pastikan sesuai
               type="text"
-              className="mt-1 p-2 w-full border rounded"
+              className="mt-1 w-full rounded border p-2"
               required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Nomor Telepon (Opsional)</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Phone number
+            </label>
             <input
               name="phoneNumber" // Pastikan sesuai
               type="text"
-              className="mt-1 p-2 w-full border rounded"
+              className="mt-1 w-full rounded border p-2"
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+            className="w-full rounded bg-blue-500 p-2 text-white hover:bg-blue-600"
           >
-            Registrasi
+            Register
           </button>
         </form>
       </div>
