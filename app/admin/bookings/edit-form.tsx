@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { BookingsClientProps } from "./bookings-client";
 import { cancelBooking, completeBooking } from "@/app/actions/booking";
 import { toast } from "sonner";
+import fluent from "fluent-methods";
 
 interface EditFormProps {
   selected: BookingsClientProps["bookings"][number];
@@ -61,6 +62,15 @@ export default function EditForm({
     }
   };
 
+  const bookingEndedAt = fluent(new Date(selected.bookingDate)).setHours(
+    selected.endTime.getHours(),
+    selected.endTime.getMinutes(),
+    selected.endTime.getSeconds(),
+    selected.endTime.getMilliseconds(),
+  );
+
+  const bookingHasPassed = new Date().getTime() >= bookingEndedAt.getTime();
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent>
@@ -83,7 +93,7 @@ export default function EditForm({
             <SelectValue placeholder="New status" />
           </SelectTrigger>
           <SelectContent>
-            {selected.status === "CONFIRMED" && (
+            {selected.status === "CONFIRMED" && bookingHasPassed && (
               <SelectItem value="COMPLETED">Completed</SelectItem>
             )}
             <SelectItem value="CANCELED">Canceled</SelectItem>
