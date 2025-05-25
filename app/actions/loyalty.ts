@@ -1,5 +1,6 @@
 "use server";
 
+import fluent from "fluent-methods";
 import sharp from "sharp";
 import { RedemptionStatus, SourceType } from "@prisma/client";
 import { prisma, getUser } from "@/lib/server-auth";
@@ -149,10 +150,38 @@ export async function changeRedemptionStatus(
     return { success: false, error: "Invalid status" };
   }
 
-  await prisma.redemption.update({
+  const [redemption] = await prisma.redemption.updateManyAndReturn({
     where: { id: redemptionId },
     data: { status: newStatus },
   });
+
+  if (!redemption) {
+    return { success: false, error: "Redemption not found" };
+  }
+
+  if (newStatus === "CANCELLED") {
+    await Promise.all([
+      prisma.userPoint.create({
+        data: {
+          userId: redemption.userId,
+          points: redemption.pointsUsed,
+          isActive: true,
+          expiryDate: fluent(redemption.redemptionDate).setFullYear(
+            redemption.redemptionDate.getFullYear() + 1,
+          ),
+        },
+      }),
+
+      prisma.pointSource.create({
+        data: {
+          sourceId: redemptionId,
+          sourceType: "REFUND",
+          userId: redemption.userId,
+          points: redemption.pointsUsed,
+        },
+      }),
+    ]);
+  }
 
   revalidatePath("/admin/loyalty");
   revalidatePath("/pengguna/loyalty");
