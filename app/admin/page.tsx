@@ -227,11 +227,13 @@ export default async function AdminDashboardPage() {
                 <div className="text-2xl font-bold">
                   {formatMoney(thisMonthRevenue)}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  {sign(revenueDifferenceFromLastMonth)}
-                  {formatNumber(revenueDifferenceFromLastMonth * 100)}% from
-                  last month
-                </p>
+                {isFinite(revenueDifferenceFromLastMonth) && (
+                  <p className="text-xs text-muted-foreground">
+                    {sign(revenueDifferenceFromLastMonth)}
+                    {formatNumber(revenueDifferenceFromLastMonth * 100)}% from
+                    last month
+                  </p>
+                )}
               </CardContent>
             </Card>
 
