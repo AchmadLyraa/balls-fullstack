@@ -167,9 +167,13 @@ export async function requireAuth(role: UserRole) {
   if (!user) {
     redirect("/login");
   } else if (user.role !== role) {
-    const suffix = role === "CUSTOMER" ? "" : "-admin";
-
-    redirect("/login" + suffix);
+    if (user.role === "CUSTOMER") {
+      redirect("/pengguna");
+    } else if (user.role === "ADMIN") {
+      redirect("/admin");
+    } else if (user.role === "SUPER_ADMIN") {
+      redirect("/super-admin");
+    }
   }
 
   return user;
