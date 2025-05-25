@@ -42,7 +42,11 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
             user={user}
           />
 
-          <PlayerClient userFullname={userFullname} booking={booking} />
+          <PlayerClient
+            userFullname={userFullname}
+            username={user.username}
+            booking={booking}
+          />
         </CardContent>
       </Card>
     </div>

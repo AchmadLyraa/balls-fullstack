@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 
 type DynamicInputListProps = PropsWithChildren<{
   placeholder: string;
-  defaultValues?: string[];
+  initialValue: string;
+  initialValueDisabled?: boolean;
   maxValues?: number;
 }>;
 
@@ -19,10 +20,22 @@ export interface DynamicInputListRef {
 
 const DynamicInputList = forwardRef<DynamicInputListRef, DynamicInputListProps>(
   (
-    { placeholder, defaultValues = [""], maxValues = Infinity, children },
+    {
+      placeholder,
+      initialValue,
+      initialValueDisabled,
+      maxValues = Infinity,
+      children,
+    },
     ref,
   ) => {
-    const [inputs, setInputs] = useState(defaultValues);
+    const [inputs, setInputs] = useState(
+      initialValueDisabled
+        ? [""]
+        : maxValues === 1
+          ? [initialValue]
+          : [initialValue, ""],
+    );
     const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
     useImperativeHandle(ref, () => ({
@@ -59,6 +72,8 @@ const DynamicInputList = forwardRef<DynamicInputListRef, DynamicInputListProps>(
     return (
       <div className="flex flex-col gap-2">
         {children}
+
+        {initialValueDisabled && <Input value={initialValue} disabled />}
 
         {inputs.map((value, index) => (
           <Input

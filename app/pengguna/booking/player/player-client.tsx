@@ -13,11 +13,13 @@ import { Button } from "@/components/ui/button";
 
 interface PlayerClientProps {
   userFullname: string;
+  username: string;
   booking: Booking;
 }
 
 export default function PlayerClient({
   userFullname,
+  username,
   booking,
 }: PlayerClientProps) {
   const router = useRouter();
@@ -72,7 +74,7 @@ export default function PlayerClient({
         <DynamicInputList
           ref={playerListRef}
           placeholder="Player"
-          defaultValues={[userFullname, ""]}
+          initialValue={userFullname}
           maxValues={booking.field.capacity}
         >
           <p className="text-sm font-medium leading-none">
@@ -80,7 +82,12 @@ export default function PlayerClient({
           </p>
         </DynamicInputList>
 
-        <DynamicInputList ref={usernameListRef} placeholder="Account Username">
+        <DynamicInputList
+          ref={usernameListRef}
+          placeholder="Account Username"
+          initialValue={username}
+          initialValueDisabled
+        >
           <p className="text-sm font-medium leading-none">
             List of usernames that will get royalty points
           </p>

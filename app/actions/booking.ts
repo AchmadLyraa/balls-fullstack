@@ -388,18 +388,21 @@ export async function setPlayersToBooking(formData: FormData) {
     };
   }
 
-  const userIds = await prisma.user.findMany({
-    where: {
-      username: {
-        in: usernames,
+  let userIds = (
+    await prisma.user.findMany({
+      where: {
+        username: {
+          in: usernames,
+        },
       },
-    },
-    select: {
-      id: true,
-    },
-  });
+      select: {
+        id: true,
+      },
+    })
+  ).map((user) => user.id);
 
-  userIds.push({ id: user.id });
+  userIds.push(user.id);
+  userIds = [...new Set(userIds)];
 
   const shouldAddPointNow =
     booking.status === "CONFIRMED" || booking.status === "COMPLETED";
@@ -415,27 +418,27 @@ export async function setPlayersToBooking(formData: FormData) {
     }),
 
     prisma.bookingUser.createMany({
-      data: userIds.map((user) => ({
+      data: userIds.map((userId) => ({
         bookingId: bookingId,
-        userId: user.id,
+        userId,
       })),
     }),
 
     shouldAddPointNow &&
       prisma.bookingPoint.createMany({
-        data: userIds.map((user) => ({
+        data: userIds.map((userId) => ({
           bookingId: bookingId,
-          userId: user.id,
+          userId,
           points,
         })),
       }),
 
     shouldAddPointNow &&
       prisma.pointSource.createMany({
-        data: userIds.map((user) => ({
+        data: userIds.map((userId) => ({
           sourceId: bookingId,
           sourceType: "BOOKING",
-          userId: user.id,
+          userId,
           points,
         })),
       }),
