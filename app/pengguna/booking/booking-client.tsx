@@ -70,7 +70,14 @@ export default function BookingClient({ user, fields }: BookingClientProps) {
     try {
       const formData = new FormData();
       formData.append("fieldId", selectedField.id);
-      formData.append("date", selectedDate.toISOString().split("T")[0]);
+      formData.append(
+        "date",
+        new Date(
+          selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000,
+        )
+          .toISOString()
+          .split("T")[0],
+      );
       formData.append("startTime", selectedStartTime);
       formData.append("endTime", selectedEndTime);
 
