@@ -30,7 +30,7 @@ export default function TransactionsClient({
       case BookingStatus.PENDING:
         return "bg-yellow-100 text-yellow-800";
       case BookingStatus.CANCELLED:
-        return "bg-red-100 text-red-800";
+        return "bg-orange-100 text-orange-800";
       case BookingStatus.COMPLETED:
         return "bg-blue-100 text-blue-800";
       default:
@@ -76,11 +76,17 @@ export default function TransactionsClient({
                     </TableCell>
                     <TableCell>{formatMoney(transaction.amount)}</TableCell>
                     <TableCell>
-                      <span
-                        className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusClass(transaction.status)}`}
-                      >
-                        {ucFirst(transaction.status.toLowerCase())}
-                      </span>
+                      {transaction.payments?.[0].status === "INVALID" ? (
+                        <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-800">
+                          Invalid Payment
+                        </span>
+                      ) : (
+                        <span
+                          className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusClass(transaction.status)}`}
+                        >
+                          {ucFirst(transaction.status.toLowerCase())}
+                        </span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Link

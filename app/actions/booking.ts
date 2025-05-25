@@ -262,8 +262,12 @@ export async function getUserBookings(user: Pick<User, "id">) {
       where: { userId: user.id },
       include: {
         field: true,
-        payments: true,
         players: true,
+        payments: {
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
       },
       orderBy: { createdAt: "desc" },
     });

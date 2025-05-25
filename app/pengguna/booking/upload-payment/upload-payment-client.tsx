@@ -67,6 +67,18 @@ export default function UploadPaymentClient({
 
   return (
     <>
+      {booking.payments?.[0].status === "INVALID" && (
+        <div className="mb-6 rounded-md border border-red-600 bg-red-100 p-3 pt-2">
+          <p>
+            Your previous payment is considered{" "}
+            <span className="font-bold text-red-800">invalid</span> because:{" "}
+            {booking.payments[0].notes}
+          </p>
+
+          <img src={`/user-content/booking/payment/${booking.id}.webp`} />
+        </div>
+      )}
+
       <div className="mb-6 grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="paymentMethod">Payment Method</Label>
