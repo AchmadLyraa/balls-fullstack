@@ -22,7 +22,7 @@ export default async function UploadPaymentPage({
   const booking = await getBookingById(user, bookingId);
   if (!booking) {
     notFound();
-  } else if (booking.payments.length !== 0) {
+  } else if (booking.payments.some((payment) => payment.status === "PAID")) {
     if (booking._count.players !== 0) {
       redirect(`/pengguna/booking/success?bookingId=${booking.id}`);
     }

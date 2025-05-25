@@ -22,8 +22,13 @@ export async function confirmPayment(formData: FormData) {
       return { success: false, error: "Payment not found" };
     } else if (checkPayment.status === "PAID") {
       return { success: false, error: "This payment has been verified" };
+    } else if (checkPayment.status === "INVALID") {
+      return {
+        success: false,
+        error: "This payment has been marked as invalid",
+      };
     } else if (checkPayment.status !== "PENDING") {
-      return { success: false, error: "Payment status is invalid" };
+      return { success: false, error: "Payment state is invalid" };
     }
 
     const payment = await prisma.payment.update({
@@ -57,6 +62,45 @@ export async function confirmPayment(formData: FormData) {
     //   });
     // }
     // }
+
+    revalidatePath("/admin/transactions");
+
+    return { success: true };
+  } catch (error) {
+    if (error instanceof Error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: false, error: "An unknown error occurred" };
+  }
+}
+
+export async function invalidPayment(formData: FormData) {
+  const paymentId = formData.get("paymentId") as string;
+  const note = formData.get("note") as string;
+
+  try {
+    const checkPayment = await prisma.payment.findFirst({
+      where: { id: paymentId },
+      select: { status: true },
+    });
+    if (!checkPayment) {
+      return { success: false, error: "Payment not found" };
+    } else if (checkPayment.status === "PAID") {
+      return { success: false, error: "This payment has been verified" };
+    } else if (checkPayment.status === "INVALID") {
+      return {
+        success: false,
+        error: "This payment has been marked as invalid",
+      };
+    } else if (checkPayment.status !== "PENDING") {
+      return { success: false, error: "Payment state is invalid" };
+    }
+
+    await prisma.payment.update({
+      where: { id: paymentId },
+      data: { status: "INVALID", notes: note },
+    });
 
     revalidatePath("/admin/transactions");
 

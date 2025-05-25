@@ -119,7 +119,7 @@ enum PaymentMethod {
 enum PaymentStatus {
   PENDING
   PAID
-  PARTIAL
+  INVALID
   CANCELLED
   REFUNDED
 }

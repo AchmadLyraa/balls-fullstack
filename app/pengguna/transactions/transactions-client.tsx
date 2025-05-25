@@ -85,7 +85,9 @@ export default function TransactionsClient({
                     <TableCell>
                       <Link
                         href={
-                          transaction.payments.length
+                          transaction.payments.some(
+                            (payment) => payment.status === "PAID",
+                          )
                             ? transaction.players.length
                               ? `/pengguna/booking/success?bookingId=${transaction.id}`
                               : `/pengguna/booking/player?bookingId=${transaction.id}`

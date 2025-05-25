@@ -10,11 +10,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Check } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
-import { confirmPayment } from "@/app/actions/admin";
+import { confirmPayment, invalidPayment } from "@/app/actions/admin";
 
 interface VerifyProps {
   transactionId: string;
@@ -23,6 +31,7 @@ interface VerifyProps {
 
 export default function Verify({ transactionId, bookingId }: VerifyProps) {
   const [note, setNote] = useState("");
+  const [newStatus, setNewStatus] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const preloadRef = useRef(false);
@@ -35,7 +44,14 @@ export default function Verify({ transactionId, bookingId }: VerifyProps) {
       formData.set("paymentId", transactionId);
       formData.set("note", note);
 
-      const result = await confirmPayment(formData);
+      const result =
+        newStatus === "PAID"
+          ? await confirmPayment(formData)
+          : newStatus === "INVALID"
+            ? await invalidPayment(formData)
+            : (() => {
+                throw new Error();
+              })();
 
       if (result.success) {
         toast.success("Payment verified successfully!");
@@ -92,10 +108,25 @@ export default function Verify({ transactionId, bookingId }: VerifyProps) {
             required
             className="my-4"
           />
+
+          <Select onValueChange={setNewStatus}>
+            <SelectTrigger className="my-2 max-w-[11rem]">
+              <SelectValue placeholder="Select new status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="PAID">Paid</SelectItem>
+                <SelectItem value="INVALID">Invalid</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
         <DialogFooter>
           <Button variant="outline">Cancel</Button>
-          <Button disabled={isLoading} onClick={handleVerify}>
+          <Button
+            disabled={isLoading || !["PAID", "INVALID"].includes(newStatus)}
+            onClick={handleVerify}
+          >
             {isLoading ? "Veryfing" : "Confirm"}
           </Button>
         </DialogFooter>
