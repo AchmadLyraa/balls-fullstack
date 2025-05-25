@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
 import { addAdminSchema } from "../super-admin/add-admin/schema";
 import { editAdminSchema } from "../super-admin/edit-admin/[id]/schema";
+import { fieldSchema } from "../admin/fields/schema";
 
 export async function confirmPayment(formData: FormData) {
   const paymentId = formData.get("paymentId") as string;
@@ -254,6 +255,93 @@ export async function deleteAdmin(adminId: string) {
     });
 
     revalidatePath("/super-admin");
+
+    return { success: true };
+  } catch (error) {
+    if (error instanceof Error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: false, error: "An unknown error occurred" };
+  }
+}
+
+export async function createField(data: z.infer<typeof fieldSchema>) {
+  const user = await getUser();
+
+  if (!user || user.role !== "ADMIN") {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    data = fieldSchema.parse(data);
+
+    // Check if user already exists
+    const existingField = await prisma.field.findFirst({
+      where: {
+        name: data.name,
+      },
+    });
+
+    if (existingField) {
+      return { success: false, error: "Field name already taken" };
+    }
+
+    // Create user
+    await prisma.field.create({ data });
+
+    return { success: true };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { success: false, error: error.errors[0].message };
+    }
+
+    if (error instanceof Error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: false, error: "An unknown error occurred" };
+  }
+}
+
+export async function updateField(
+  fieldId: string,
+  data: z.infer<typeof fieldSchema>,
+) {
+  const user = await getUser();
+
+  if (!user || user.role !== "ADMIN") {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    data = fieldSchema.parse(data);
+
+    const field = await prisma.field.findUnique({
+      where: { id: fieldId },
+    });
+
+    if (!field) {
+      return { success: false, error: "Field not found" };
+    }
+
+    if (data.name !== field.name) {
+      const existingField = await prisma.field.findFirst({
+        where: {
+          name: data.name,
+        },
+      });
+
+      if (existingField) {
+        return { success: false, error: "Field name already taken" };
+      }
+    }
+
+    // Update field
+    await prisma.field.update({
+      where: { id: fieldId },
+      data,
+    });
 
     return { success: true };
   } catch (error) {

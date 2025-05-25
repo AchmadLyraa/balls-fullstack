@@ -6,7 +6,15 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, LogOut, CreditCard, File, Gift, Handshake } from "lucide-react";
+import {
+  Home,
+  LogOut,
+  CreditCard,
+  File,
+  Gift,
+  Handshake,
+  RectangleHorizontal,
+} from "lucide-react";
 
 interface AdminSidebarProps {
   user: UserJwtPayload;
@@ -22,6 +30,7 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
     { href: "/admin/report", label: "Report", icon: File },
     { href: "/admin/loyalty", label: "Loyalty", icon: Gift },
     { href: "/admin/bookings", label: "Bookings", icon: Handshake },
+    { href: "/admin/fields", label: "Fields", icon: RectangleHorizontal },
   ];
 
   return (
