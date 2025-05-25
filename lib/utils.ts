@@ -52,12 +52,12 @@ export function formatUtcDateDMY(date: Date) {
   );
 }
 
-export function formatDateDMY(date: Date) {
+export function formatDateDMY(date: Date, separator = "-") {
   return (
     date.getDate().toString().padStart(2, "0") +
-    "-" +
+    separator +
     date.getMonth().toString().padStart(2, "0") +
-    "-" +
+    separator +
     date.getFullYear()
   );
 }

@@ -1,4 +1,4 @@
-import { requireAuth } from "@/lib/server-auth";
+import { prisma, requireAuth } from "@/lib/server-auth";
 import {
   Card,
   CardContent,
@@ -8,9 +8,175 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDays, CreditCard, DollarSign, Users } from "lucide-react";
+import fluent from "fluent-methods";
+import { formatDateDMY, formatMoney, formatNumber, ucFirst } from "@/lib/utils";
+import BookingAnalytics, { BookingAnalyticsProps } from "./booking-analytics";
 
 export default async function AdminDashboardPage() {
   const user = await requireAuth("ADMIN");
+
+  const today = new Date();
+  const thisMonthDate = fluent(new Date()).setMonth(today.getMonth() - 1);
+  const lastMonthDate = fluent(new Date()).setMonth(today.getMonth() - 2);
+
+  const [
+    thisMonthBookings,
+    lastMonthBookings,
+    thisMonthActiveUsers,
+    lastMonthActiveUsers,
+    thisMonthRedemptions,
+    lastMonthRedemptions,
+    recentBookings,
+    popularFields,
+  ] = await Promise.all([
+    prisma.booking.findMany({
+      where: {
+        status: {
+          in: ["COMPLETED", "CONFIRMED"],
+        },
+        bookingDate: {
+          gte: thisMonthDate,
+        },
+      },
+      select: {
+        amount: true,
+        duration: true,
+        bookingDate: true,
+      },
+    }),
+    prisma.booking.findMany({
+      where: {
+        status: {
+          in: ["COMPLETED", "CONFIRMED"],
+        },
+        bookingDate: {
+          gte: lastMonthDate,
+          lt: thisMonthDate,
+        },
+      },
+      select: {
+        amount: true,
+      },
+    }),
+
+    prisma.booking.findMany({
+      where: {
+        status: {
+          in: ["COMPLETED", "CONFIRMED"],
+        },
+        bookingDate: {
+          gte: thisMonthDate,
+        },
+      },
+      distinct: "userId",
+      select: { id: true },
+    }),
+    prisma.booking.findMany({
+      where: {
+        status: {
+          in: ["COMPLETED", "CONFIRMED"],
+        },
+        bookingDate: {
+          gte: lastMonthDate,
+          lt: thisMonthDate,
+        },
+      },
+      distinct: "userId",
+      select: { id: true },
+    }),
+
+    prisma.redemption.count({
+      where: {
+        status: "COMPLETED",
+        redemptionDate: {
+          gte: thisMonthDate,
+        },
+      },
+    }),
+    prisma.redemption.count({
+      where: {
+        status: "COMPLETED",
+        redemptionDate: {
+          gte: lastMonthDate,
+          lt: thisMonthDate,
+        },
+      },
+    }),
+
+    prisma.booking.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        field: {
+          select: { name: true },
+        },
+        user: {
+          select: { fullName: true },
+        },
+      },
+      take: 3,
+    }),
+
+    prisma.field.findMany({
+      include: {
+        _count: {
+          select: {
+            bookings: {
+              where: {
+                bookingDate: {
+                  gte: thisMonthDate,
+                },
+              },
+            },
+          },
+        },
+      },
+    }),
+  ]);
+
+  const bookingDifferenceFromLastMonth =
+    thisMonthBookings.length / lastMonthBookings.length - 1;
+
+  const thisMonthRevenue = thisMonthBookings.reduce(
+    (revenue, booking) => revenue + booking.amount,
+    0,
+  );
+  const lastMonthRevenue = lastMonthBookings.reduce(
+    (revenue, booking) => revenue + booking.amount,
+    0,
+  );
+  const revenueDifferenceFromLastMonth =
+    thisMonthRevenue / lastMonthRevenue - 1;
+
+  const activeUserDifferenceFromLastMonth =
+    thisMonthActiveUsers.length / lastMonthActiveUsers.length - 1;
+
+  const redemptionDifferenceFromLastMonth =
+    thisMonthRedemptions / lastMonthRedemptions - 1;
+
+  const sign = (number: number) => (number > 0 ? "+" : "");
+
+  const fieldBookingCount = popularFields.reduce(
+    (revenue, field) => revenue + field._count.bookings,
+    0,
+  );
+
+  const groupedThisMonthBookings = thisMonthBookings.reduce(
+    (group, booking) => {
+      const key = formatDateDMY(booking.bookingDate, "/");
+
+      if (!(key in group)) {
+        group[key] = { count: 0, duration: 0 };
+      }
+
+      group[key].count++;
+      group[key].duration += booking.duration;
+
+      return group;
+    },
+    {} as Record<string, { count: number; duration: number }>,
+  );
 
   return (
     <div className="space-y-8">
@@ -25,7 +191,6 @@ export default async function AdminDashboardPage() {
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="reports">Reports</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -38,10 +203,16 @@ export default async function AdminDashboardPage() {
                 <CalendarDays className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">128</div>
-                <p className="text-xs text-muted-foreground">
-                  +14% from last month
-                </p>
+                <div className="text-2xl font-bold">
+                  {formatNumber(thisMonthBookings.length)}
+                </div>
+                {isFinite(bookingDifferenceFromLastMonth) && (
+                  <p className="text-xs text-muted-foreground">
+                    {sign(bookingDifferenceFromLastMonth)}
+                    {formatNumber(bookingDifferenceFromLastMonth * 100)}% from
+                    last month
+                  </p>
+                )}
               </CardContent>
             </Card>
 
@@ -53,9 +224,13 @@ export default async function AdminDashboardPage() {
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">Rp 12,500,000</div>
+                <div className="text-2xl font-bold">
+                  {formatMoney(thisMonthRevenue)}
+                </div>
                 <p className="text-xs text-muted-foreground">
-                  +8% from last month
+                  {sign(revenueDifferenceFromLastMonth)}
+                  {formatNumber(revenueDifferenceFromLastMonth * 100)}% from
+                  last month
                 </p>
               </CardContent>
             </Card>
@@ -68,10 +243,16 @@ export default async function AdminDashboardPage() {
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">42</div>
-                <p className="text-xs text-muted-foreground">
-                  +12% from last month
-                </p>
+                <div className="text-2xl font-bold">
+                  {formatNumber(thisMonthActiveUsers.length)}
+                </div>
+                {isFinite(activeUserDifferenceFromLastMonth) && (
+                  <p className="text-xs text-muted-foreground">
+                    {sign(activeUserDifferenceFromLastMonth)}
+                    {formatNumber(activeUserDifferenceFromLastMonth * 100)}%
+                    from last month
+                  </p>
+                )}
               </CardContent>
             </Card>
 
@@ -83,10 +264,16 @@ export default async function AdminDashboardPage() {
                 <CreditCard className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">24</div>
-                <p className="text-xs text-muted-foreground">
-                  +18% from last month
-                </p>
+                <div className="text-2xl font-bold">
+                  {formatNumber(thisMonthRedemptions)}
+                </div>
+                {isFinite(redemptionDifferenceFromLastMonth) && (
+                  <p className="text-xs text-muted-foreground">
+                    {sign(redemptionDifferenceFromLastMonth)}
+                    {formatNumber(redemptionDifferenceFromLastMonth * 100)}%
+                    from last month
+                  </p>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -101,40 +288,22 @@ export default async function AdminDashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {/* Placeholder for recent bookings */}
-                  <div className="flex items-center">
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        Field A - SRE Team
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        12/05/2025 - Rp 450,000
-                      </p>
+                  {recentBookings.map((booking) => (
+                    <div key={booking.id} className="flex items-center">
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium leading-none">
+                          {booking.field.name}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {formatDateDMY(booking.bookingDate, "/")} -{" "}
+                          {formatMoney(booking.amount)}
+                        </p>
+                      </div>
+                      <div className="ml-auto font-medium">
+                        {ucFirst(booking.status.toLowerCase())}
+                      </div>
                     </div>
-                    <div className="ml-auto font-medium">Confirmed</div>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        Field B - AUROBOROS
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        15/06/2025 - Rp 550,000
-                      </p>
-                    </div>
-                    <div className="ml-auto font-medium">Pending</div>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        Field A - ENGGANG
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        25/09/2025 - Rp 250,000
-                      </p>
-                    </div>
-                    <div className="ml-auto font-medium">Canceled</div>
-                  </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -146,28 +315,25 @@ export default async function AdminDashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex items-center">
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        Field A (North Wing)
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        42 bookings
-                      </p>
+                  {popularFields.map((field) => (
+                    <div key={field.id} className="flex items-center">
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium leading-none">
+                          {field.name}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {formatNumber(field._count.bookings)} bookings
+                        </p>
+                      </div>
+                      <div className="ml-auto font-medium">
+                        {(
+                          (field._count.bookings / fieldBookingCount) *
+                          100
+                        ).toFixed(2)}
+                        %
+                      </div>
                     </div>
-                    <div className="ml-auto font-medium">65%</div>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        Field B (South Wing)
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        28 bookings
-                      </p>
-                    </div>
-                    <div className="ml-auto font-medium">35%</div>
-                  </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -183,55 +349,19 @@ export default async function AdminDashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex h-[300px] items-center justify-center rounded border">
-                <p className="text-muted-foreground">
-                  Analytics chart will be displayed here
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+              <div className="flex h-[400px] items-center justify-center rounded border">
+                <BookingAnalytics
+                  data={
+                    Object.entries(groupedThisMonthBookings).map(
+                      ([date, data]) => {
+                        // @ts-ignore
+                        data.name = date;
 
-        <TabsContent value="reports" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Monthly Reports</CardTitle>
-              <CardDescription>
-                Download or view monthly reports
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      April 2025 Report
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Generated on May 1, 2025
-                    </p>
-                  </div>
-                  <div>
-                    <button className="text-sm text-blue-500 hover:underline">
-                      Download
-                    </button>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      March 2025 Report
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Generated on April 1, 2025
-                    </p>
-                  </div>
-                  <div>
-                    <button className="text-sm text-blue-500 hover:underline">
-                      Download
-                    </button>
-                  </div>
-                </div>
+                        return data;
+                      },
+                    ) as BookingAnalyticsProps["data"]
+                  }
+                />
               </div>
             </CardContent>
           </Card>
