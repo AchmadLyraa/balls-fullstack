@@ -57,7 +57,9 @@ export default function TimeSelector({
       const endMinutes = convertDateIntoMinutes(booking.endTime);
 
       endTimes.forEach((minutes, timeSlot) => {
-        if (minutes === endMinutes) {
+        if (startMinutes <= minutes - 1 && minutes < endMinutes) {
+          endTimes.set(timeSlot, -1);
+        } else if (minutes === endMinutes) {
           endTimes.set(timeSlot, -1);
         }
       });
