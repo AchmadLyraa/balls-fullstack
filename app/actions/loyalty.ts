@@ -118,6 +118,7 @@ export async function redeemLoyaltyProgram(programId: string): Promise<
       },
     });
 
+    revalidatePath("/admin/loyalty");
     revalidatePath("/pengguna/loyalty");
 
     return {
@@ -153,7 +154,8 @@ export async function changeRedemptionStatus(
     data: { status: newStatus },
   });
 
-  revalidatePath("admin/loyalty");
+  revalidatePath("/admin/loyalty");
+  revalidatePath("/pengguna/loyalty");
 
   return { success: true, message: "Redemption status changed successfully" };
 }
@@ -190,7 +192,8 @@ export async function editLoyaltyProgram(
 
     await Promise.all(promises);
 
-    revalidatePath("admin/loyalty");
+    revalidatePath("/admin/loyalty");
+    revalidatePath("/pengguna/loyalty");
 
     return { success: true, message: "Loyalty program edited successfully" };
   } catch (error) {
@@ -228,7 +231,8 @@ export async function createLoyaltyProgram(
       await imagePromise
     ).toFile(`./public/content/loyalty/${loyalty.id}.webp`);
 
-    revalidatePath("admin/loyalty");
+    revalidatePath("/admin/loyalty");
+    revalidatePath("/pengguna/loyalty");
 
     return { success: true, message: "Loyalty program created successfully" };
   } catch (error) {

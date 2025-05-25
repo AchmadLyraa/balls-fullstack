@@ -242,7 +242,10 @@ export async function cancelBooking(bookingId: string) {
       }),
     ]);
 
-    revalidatePath("admin/bookings");
+    revalidatePath("/admin/bookings");
+    revalidatePath("/pengguna/transactions");
+    revalidatePath("/pengguna/booking/upload-payment");
+    revalidatePath("/pengguna/booking/success");
 
     return { success: true };
   } catch (error) {
@@ -485,7 +488,10 @@ export async function completeBooking(bookingId: string) {
       }),
     ]);
 
-    revalidatePath("admin/bookings");
+    revalidatePath("/admin/bookings");
+    revalidatePath("/pengguna/transactions");
+    revalidatePath("/pengguna/booking/upload-payment");
+    revalidatePath("/pengguna/booking/success");
 
     return { success: true };
   } catch (error) {

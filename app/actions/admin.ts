@@ -64,6 +64,9 @@ export async function confirmPayment(formData: FormData) {
     // }
 
     revalidatePath("/admin/transactions");
+    revalidatePath("/pengguna/transactions");
+    revalidatePath("/pengguna/booking/upload-payment");
+    revalidatePath("/pengguna/booking/success");
 
     return { success: true };
   } catch (error) {
@@ -103,6 +106,9 @@ export async function invalidPayment(formData: FormData) {
     });
 
     revalidatePath("/admin/transactions");
+    revalidatePath("/pengguna/transactions");
+    revalidatePath("/pengguna/booking/upload-payment");
+    revalidatePath("/pengguna/booking/success");
 
     return { success: true };
   } catch (error) {
@@ -247,7 +253,7 @@ export async function deleteAdmin(adminId: string) {
       where: { id: adminId },
     });
 
-    revalidatePath("super-admin");
+    revalidatePath("/super-admin");
 
     return { success: true };
   } catch (error) {
