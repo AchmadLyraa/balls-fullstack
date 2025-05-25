@@ -64,7 +64,6 @@ export default function TimeSelector({
           endTimes.set(timeSlot, -1);
         } else if (minutes === endMinutes) {
           endTimes.set(timeSlot, -1);
-          endTimes.set(endTimeSlots[i], -1);
         }
       });
 
@@ -74,7 +73,7 @@ export default function TimeSelector({
 
         if (startMinutes <= minutes && minutes < endMinutes) {
           startTimes.set(timeSlot, -1);
-        } else if (minutes === endMinutes) {
+        } else if (minutes - 1 === endMinutes) {
           startTimes.set(timeSlot, -1);
 
           if (startTimeSlots[i + 1]) {
@@ -86,6 +85,8 @@ export default function TimeSelector({
 
     return [startTimes, endTimes];
   }, [startTimeSlots, endTimeSlots, selectedField.bookings]);
+
+  console.log(endTimes);
 
   return (
     <div className="grid gap-6 rounded-md border border-input bg-gray-50/50 p-6">
@@ -102,8 +103,17 @@ export default function TimeSelector({
               onClick={() => {
                 setSelectedStartTime(time);
 
-                const index = startTimeSlots.indexOf(time);
-                setSelectedEndTime(endTimeSlots[index]);
+                let index = startTimeSlots.indexOf(time);
+
+                do {
+                  const endTimeSlot = endTimeSlots[index];
+
+                  if (endTimes.get(endTimeSlot) !== -1) {
+                    setSelectedEndTime(endTimeSlots[index]);
+
+                    break;
+                  }
+                } while (++index in endTimeSlots);
               }}
               className={
                 selectedStartTime === time ? "bg-red-600 hover:bg-red-700" : ""
