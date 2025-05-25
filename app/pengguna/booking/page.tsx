@@ -29,7 +29,7 @@ export default async function BookingPage() {
             gte: fluent(new Date()).setHours(0, 0, 0, 0),
           },
           status: {
-            notIn: ["COMPLETED", "CANCELLED"],
+            not: "CANCELLED",
           },
         },
       },
