@@ -227,7 +227,7 @@ export async function cancelBooking(bookingId: string) {
       };
     }
 
-    if (booking.status !== "PENDING") {
+    if (booking.status !== "CONFIRMED") {
       return { success: false, error: "Invalid state" };
     }
 
@@ -446,7 +446,7 @@ export async function completeBooking(bookingId: string) {
       include: { bookingUser: { select: { userId: true } } },
     });
 
-    if (booking.status !== "PENDING") {
+    if (booking.status !== "CONFIRMED") {
       return { success: false, error: "Invalid state" };
     }
 

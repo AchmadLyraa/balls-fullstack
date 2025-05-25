@@ -125,7 +125,7 @@ export default function BookingsClient({
                   </span>
                 </TableCell>
                 <TableCell>
-                  {booking.status === "PENDING" && (
+                  {booking.status === "CONFIRMED" && (
                     <Button
                       variant="outline"
                       size="sm"
