@@ -6,16 +6,16 @@ import {
   PaymentMethod,
   SourceType,
   RedemptionStatus,
-} from "@prisma/client"
-import { hash } from "bcryptjs"
+} from "@prisma/client";
+import { hash } from "bcryptjs";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function main() {
-  console.log("Starting seeding...")
+  console.log("Starting seeding...");
 
   // Create users
-  const superAdminPassword = await hash("password123", 10)
+  const superAdminPassword = await hash("password123", 10);
   const superAdmin = await prisma.user.upsert({
     where: { email: "superadmin@example.com" },
     update: {},
@@ -27,9 +27,9 @@ async function main() {
       phoneNumber: "081234567890",
       role: UserRole.SUPER_ADMIN,
     },
-  })
+  });
 
-  const adminPassword = await hash("password123", 10)
+  const adminPassword = await hash("password123", 10);
   const admin = await prisma.user.upsert({
     where: { email: "admin@example.com" },
     update: {},
@@ -41,9 +41,9 @@ async function main() {
       phoneNumber: "081234567891",
       role: UserRole.ADMIN,
     },
-  })
+  });
 
-  const customerPassword = await hash("password123", 10)
+  const customerPassword = await hash("password123", 10);
   const customer = await prisma.user.upsert({
     where: { email: "customer@example.com" },
     update: {},
@@ -55,7 +55,7 @@ async function main() {
       phoneNumber: "081234567892",
       role: UserRole.CUSTOMER,
     },
-  })
+  });
 
   // Create user points
   const userPoints = await prisma.userPoint.upsert({
@@ -66,9 +66,11 @@ async function main() {
       userId: customer.id,
       points: 100,
       isActive: true,
-      expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+      expiryDate: new Date(
+        new Date().setFullYear(new Date().getFullYear() + 1),
+      ),
     },
-  })
+  });
 
   // Create fields
   const fieldA = await prisma.field.create({
@@ -80,7 +82,7 @@ async function main() {
       isAvailable: true,
       notes: "Perfect for small teams",
     },
-  })
+  });
 
   const fieldB = await prisma.field.create({
     data: {
@@ -91,7 +93,7 @@ async function main() {
       isAvailable: true,
       notes: "Full-size field for professional matches",
     },
-  })
+  });
 
   // Create loyalty programs
   const loyaltyPrograms = await Promise.all([
@@ -101,7 +103,6 @@ async function main() {
         description: "Get 25% discount on your next booking",
         pointsRequired: 70,
         isActive: true,
-        imageUrl: "/placeholder.svg?height=200&width=200",
       },
     }),
     prisma.loyaltyProgram.create({
@@ -110,7 +111,6 @@ async function main() {
         description: "Free fried rice at BAS Cafe",
         pointsRequired: 80,
         isActive: true,
-        imageUrl: "/placeholder.svg?height=200&width=200",
       },
     }),
     prisma.loyaltyProgram.create({
@@ -119,7 +119,6 @@ async function main() {
         description: "Free burger at BAS Cafe",
         pointsRequired: 60,
         isActive: true,
-        imageUrl: "/placeholder.svg?height=200&width=200",
       },
     }),
     prisma.loyaltyProgram.create({
@@ -128,7 +127,6 @@ async function main() {
         description: "Get 50% discount on your next booking",
         pointsRequired: 140,
         isActive: true,
-        imageUrl: "/placeholder.svg?height=200&width=200",
       },
     }),
     prisma.loyaltyProgram.create({
@@ -137,16 +135,15 @@ async function main() {
         description: "Get 50% discount on shoes rental",
         pointsRequired: 50,
         isActive: true,
-        imageUrl: "/placeholder.svg?height=200&width=200",
       },
     }),
-  ])
+  ]);
 
   // Create a sample booking
-  const bookingDate = new Date("2025-05-12")
-  const startTime = new Date("2025-05-12T15:00:00Z")
-  const endTime = new Date("2025-05-12T17:00:00Z")
-  const duration = 2.0 // 2 hours
+  const bookingDate = new Date("2025-05-12");
+  const startTime = new Date("2025-05-12T15:00:00Z");
+  const endTime = new Date("2025-05-12T17:00:00Z");
+  const duration = 2.0; // 2 hours
 
   const booking = await prisma.booking.create({
     data: {
@@ -160,7 +157,7 @@ async function main() {
       status: BookingStatus.CONFIRMED,
       notes: "Regular booking",
     },
-  })
+  });
 
   // Create a sample payment
   const payment = await prisma.payment.create({
@@ -173,7 +170,7 @@ async function main() {
       transactionId: "TRX-" + Math.floor(Math.random() * 1000000),
       paymentDate: new Date(),
     },
-  })
+  });
 
   // Create booking points
   const bookingPoints = await prisma.bookingPoint.create({
@@ -182,7 +179,7 @@ async function main() {
       bookingId: booking.id,
       points: 30, // 30 points for this booking
     },
-  })
+  });
 
   // Create point source record
   const pointSource = await prisma.pointSource.create({
@@ -192,7 +189,7 @@ async function main() {
       points: 30,
       sourceType: SourceType.BOOKING,
     },
-  })
+  });
 
   // Create a sample redemption
   const redemption = await prisma.redemption.create({
@@ -202,16 +199,16 @@ async function main() {
       pointsUsed: 70,
       status: RedemptionStatus.COMPLETED,
     },
-  })
+  });
 
-  console.log("Seeding completed!")
+  console.log("Seeding completed!");
 }
 
 main()
   .catch((e) => {
-    console.error(e)
-    process.exit(1)
+    console.error(e);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });
