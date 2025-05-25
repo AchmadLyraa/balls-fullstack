@@ -11,14 +11,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { UserJwtPayload } from "@/lib/server-auth";
 import { toast } from "sonner";
 import { createBooking } from "@/app/actions/booking";
 import type { Prisma } from "@prisma/client";
 import TimeSelector from "./time-selector";
 
 export interface BookingClientProps {
-  user: UserJwtPayload;
   fields: Prisma.FieldGetPayload<{
     omit: {
       createdAt: true;
@@ -38,9 +36,8 @@ export interface BookingClientProps {
   }>[];
 }
 
-export default function BookingClient({ user, fields }: BookingClientProps) {
+export default function BookingClient({ fields }: BookingClientProps) {
   const router = useRouter();
-  const [step, setStep] = useState(1);
   const [selectedField, setSelectedField] = useState<
     BookingClientProps["fields"][number] | null
   >(null);

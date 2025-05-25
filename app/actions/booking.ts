@@ -188,6 +188,11 @@ export async function uploadPaymentProof(formData: FormData) {
           .webp()
           .toFile(`./public/user-content/booking/payment/${bookingId}.webp`);
       }),
+      booking.status !== "PENDING" &&
+        prisma.booking.update({
+          where: { id: bookingId },
+          data: { status: "PENDING" },
+        }),
     ]);
 
     return { success: true, paymentId: payment.id };
@@ -226,7 +231,7 @@ export async function cancelBooking(bookingId: string) {
       };
     }
 
-    if (booking.status !== "CONFIRMED") {
+    if (["CANCELLED", "COMPLETED"].includes(booking.status)) {
       return { success: false, error: "Invalid state" };
     }
 

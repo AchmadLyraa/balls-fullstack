@@ -33,7 +33,7 @@ export default function EditForm({
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState<
     "COMPLETED" | "CANCELED" | (string & {})
-  >("");
+  >(selected.status === "CONFIRMED" ? "" : "CANCELED");
 
   const handleUpdate = async () => {
     setIsLoading(true);
@@ -53,8 +53,8 @@ export default function EditForm({
       } else {
         toast.error(result.error);
       }
-    } catch {
-      toast.error("Failed to delete loyalty program. Please try again later");
+    } catch (e) {
+      toast.error("Failed to cancel. Please try again later");
     } finally {
       setIsOpen(false);
       setIsLoading(false);
@@ -73,12 +73,19 @@ export default function EditForm({
           </DialogDescription>
         </DialogHeader>
 
-        <Select onValueChange={setStatus}>
+        <Select
+          onValueChange={setStatus}
+          defaultValue={
+            selected.status === "CONFIRMED" ? undefined : "CANCELED"
+          }
+        >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="New status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="COMPLETED">Completed</SelectItem>
+            {selected.status === "CONFIRMED" && (
+              <SelectItem value="COMPLETED">Completed</SelectItem>
+            )}
             <SelectItem value="CANCELED">Canceled</SelectItem>
           </SelectContent>
         </Select>

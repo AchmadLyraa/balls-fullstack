@@ -47,8 +47,8 @@ export default function TimeSelector({
     selectedField.bookings.forEach((booking) => {
       const { bookingDate } = booking;
       if (
-        bookingDate.getUTCMonth() !== selectedDate.getUTCMonth() ||
-        bookingDate.getUTCDate() !== selectedDate.getUTCDate()
+        bookingDate.getUTCMonth() !== selectedDate.getMonth() ||
+        bookingDate.getUTCDate() !== selectedDate.getDate()
       ) {
         return;
       }

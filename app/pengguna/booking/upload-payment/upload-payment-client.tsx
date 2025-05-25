@@ -71,8 +71,9 @@ export default function UploadPaymentClient({
         <div className="mb-6 rounded-md border border-red-600 bg-red-100 p-3 pt-2">
           <p>
             Your previous payment is considered{" "}
-            <span className="font-bold text-red-800">invalid</span> because:{" "}
-            {booking.payments[0].notes}
+            <span className="font-bold text-red-800">invalid</span>
+            {booking.payments[0].notes &&
+              ` because: ${booking.payments[0].notes}`}
           </p>
 
           <img src={`/user-content/booking/payment/${booking.id}.webp`} />

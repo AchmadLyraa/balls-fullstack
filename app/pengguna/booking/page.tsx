@@ -28,6 +28,9 @@ export default async function BookingPage() {
           bookingDate: {
             gte: fluent(new Date()).setHours(0, 0, 0, 0),
           },
+          status: {
+            notIn: ["COMPLETED", "CANCELLED"],
+          },
         },
       },
     },
@@ -43,7 +46,7 @@ export default async function BookingPage() {
             section="Field & Time"
             user={user}
           />
-          <BookingClient user={user} fields={fields} />
+          <BookingClient fields={fields} />
         </CardContent>
       </Card>
     </div>
