@@ -214,6 +214,8 @@ export default function LoyaltyClient({
             {dialogData && "redemptionId" in dialogData && (
               <DialogDescription>
                 Scan this QR code to redeem your reward
+                <br />
+                Redemption ID: {dialogData.redemptionId}
               </DialogDescription>
             )}
           </DialogHeader>

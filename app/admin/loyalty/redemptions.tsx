@@ -157,8 +157,9 @@ export default function Redemptions({ redemptions }: RedemptionsProps) {
             <DialogHeader>
               <DialogTitle>Change Redemption Status</DialogTitle>
               <DialogDescription>
-                <p>Redemption ID: {selected.id}</p>
-                <p>Redemption Reward: {selected.loyaltyProgram.programName}</p>
+                Redemption ID: {selected.id}
+                <br />
+                Redemption Reward: {selected.loyaltyProgram.programName}
               </DialogDescription>
             </DialogHeader>
 
