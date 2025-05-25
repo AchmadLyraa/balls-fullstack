@@ -27,6 +27,7 @@ export default function PlayerClient({
   const [isLoading, setIsLoading] = useState(false);
   const playerListRef = useRef<DynamicInputListRef>(null);
   const usernameListRef = useRef<DynamicInputListRef>(null);
+  const [handlerDisabled, setHandlerDisabled] = useState(false);
 
   const handleSubmit = async () => {
     const playerList = playerListRef.current?.getValues();
@@ -56,6 +57,8 @@ export default function PlayerClient({
       const result = await setPlayersToBooking(formData);
 
       if (result.success) {
+        setHandlerDisabled(true);
+
         toast.success("Player list added successfully!");
         router.push(`/pengguna/booking/success?bookingId=${booking.id}`);
       } else {
@@ -97,7 +100,7 @@ export default function PlayerClient({
       <div className="mt-8 flex justify-end">
         <Button
           onClick={handleSubmit}
-          disabled={isLoading}
+          disabled={isLoading || handlerDisabled}
           className="bg-red-600 hover:bg-red-700"
         >
           {isLoading ? "Processing..." : "Set Players"}

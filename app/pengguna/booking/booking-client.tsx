@@ -47,6 +47,7 @@ export default function BookingClient({ fields }: BookingClientProps) {
   );
   const [selectedEndTime, setSelectedEndTime] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [handlerDisabled, setHandlerDisabled] = useState(false);
 
   const startTimeSlots = ["09:00", "11:00", "13:00", "15:00", "17:00", "19:00"];
   const endTimeSlots = ["11:00", "13:00", "15:00", "17:00", "19:00", "21:00"];
@@ -81,14 +82,13 @@ export default function BookingClient({ fields }: BookingClientProps) {
       const result = await createBooking(formData);
 
       if (result.success) {
+        setHandlerDisabled(true);
+
         toast.success("Booking confirmed! Redirecting to payment...");
 
-        // Simulate a delay before redirecting
-        setTimeout(() => {
-          router.push(
-            `/pengguna/booking/upload-payment?bookingId=${result.bookingId}`,
-          );
-        }, 1500);
+        router.push(
+          `/pengguna/booking/upload-payment?bookingId=${result.bookingId}`,
+        );
       } else {
         toast.error(result.error || "Failed to create booking");
       }
@@ -170,7 +170,8 @@ export default function BookingClient({ fields }: BookingClientProps) {
             !selectedDate ||
             !selectedStartTime ||
             !selectedEndTime ||
-            isLoading
+            isLoading ||
+            handlerDisabled
           }
           className="bg-red-600 hover:bg-red-700"
         >

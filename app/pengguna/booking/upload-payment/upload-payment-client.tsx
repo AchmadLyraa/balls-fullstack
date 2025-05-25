@@ -35,6 +35,7 @@ export default function UploadPaymentClient({
   const [file, setFile] = useState<File | null | undefined>();
   const [isUploading, setIsUploading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("");
+  const [handlerDisabled, setHandlerDisabled] = useState(false);
 
   const handleUpload = async () => {
     if (!file) {
@@ -53,6 +54,8 @@ export default function UploadPaymentClient({
       const result = await uploadPaymentProof(formData);
 
       if (result.success) {
+        setHandlerDisabled(true);
+
         toast.success("Payment proof uploaded successfully!");
         router.push(`/pengguna/booking/player?bookingId=${booking.id}`);
       } else {
@@ -124,7 +127,7 @@ export default function UploadPaymentClient({
         ) : (
           <Button
             onClick={handleUpload}
-            disabled={isUploading || !paymentMethod}
+            disabled={isUploading || !paymentMethod || handlerDisabled}
             className="bg-red-600 hover:bg-red-700"
           >
             {isUploading ? "Uploading..." : "Upload Proof of Payment"}
