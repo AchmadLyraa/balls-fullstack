@@ -75,7 +75,7 @@ export default function ImageDragAndDrop({
               <span className="font-semibold">Click to upload</span> or drag and
               drop
             </p>
-            <p className="text-xs text-gray-500">Image (MAX. 1MB)</p>
+            <p className="text-xs text-gray-500">Image (Max 1MB)</p>
           </>
         )}
 

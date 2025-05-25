@@ -139,7 +139,6 @@ export async function uploadPaymentProof(formData: FormData) {
 
   const bookingId = formData.get("bookingId") as string;
   const paymentMethod = formData.get("paymentMethod") as string;
-  const amount = formData.get("amount") as string;
   const proofImage = formData.get("proofImage") as File;
 
   try {
@@ -147,9 +146,9 @@ export async function uploadPaymentProof(formData: FormData) {
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
       include: {
-        _count: {
+        payments: {
           select: {
-            payments: true,
+            status: true,
           },
         },
       },
@@ -162,7 +161,7 @@ export async function uploadPaymentProof(formData: FormData) {
         success: false,
         error: "You are not authorized to upload payment for this booking",
       };
-    } else if (booking._count.payments > 0) {
+    } else if (booking.payments.some((payment) => payment.status === "PAID")) {
       return {
         success: false,
         error: "This booking has already been paid",
@@ -174,7 +173,7 @@ export async function uploadPaymentProof(formData: FormData) {
         data: {
           bookingId,
           userId: user.id,
-          amount: Number.parseFloat(amount),
+          amount: booking.amount,
           method: paymentMethod as PaymentMethod,
           status: PaymentStatus.PENDING,
           transactionId: "TRX-" + Math.floor(Math.random() * 1000000),
