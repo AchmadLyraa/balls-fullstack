@@ -174,3 +174,21 @@ export async function requireAuth(role: UserRole) {
 
   return user;
 }
+
+export async function redirectIfAuthenticated() {
+  const user = await getUser();
+
+  if (user?.role) {
+    if (user.role === "CUSTOMER") {
+      redirect("/pengguna");
+    } else if (user.role === "ADMIN") {
+      redirect("/admin");
+    } else if (user.role === "SUPER_ADMIN") {
+      redirect("/super-admin");
+    }
+  }
+}
+
+export async function logout() {
+  (await cookies()).delete("auth-token");
+}
