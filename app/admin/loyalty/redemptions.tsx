@@ -58,6 +58,7 @@ export default function Redemptions({ redemptions }: RedemptionsProps) {
     } finally {
       setIsOpen(false);
       setNewStatus("");
+      setIsLoading(false);
     }
   };
 
