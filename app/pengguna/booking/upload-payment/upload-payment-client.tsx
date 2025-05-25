@@ -67,7 +67,7 @@ export default function UploadPaymentClient({
 
   return (
     <>
-      {booking.payments?.[0].status === "INVALID" && (
+      {booking.payments[0]?.status === "INVALID" && (
         <div className="mb-6 rounded-md border border-red-600 bg-red-100 p-3 pt-2">
           <p>
             Your previous payment is considered{" "}

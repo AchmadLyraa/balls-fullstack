@@ -76,7 +76,7 @@ export default function TransactionsClient({
                     </TableCell>
                     <TableCell>{formatMoney(transaction.amount)}</TableCell>
                     <TableCell>
-                      {transaction.payments?.[0].status === "INVALID" ? (
+                      {transaction.payments[0]?.status === "INVALID" ? (
                         <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-800">
                           Invalid Payment
                         </span>
