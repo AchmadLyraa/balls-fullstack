@@ -86,8 +86,6 @@ export default function TimeSelector({
     return [startTimes, endTimes];
   }, [startTimeSlots, endTimeSlots, selectedField.bookings]);
 
-  console.log(endTimes);
-
   return (
     <div className="grid gap-6 rounded-md border border-input bg-gray-50/50 p-6">
       <div>
