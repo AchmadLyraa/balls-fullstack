@@ -1,4 +1,4 @@
-import { requireAuth } from "@/lib/server-auth";
+import { prisma, requireAuth } from "@/lib/server-auth";
 import PlayerClient from "./player-client";
 import { getBookingById } from "@/app/actions/booking";
 import { SearchParams } from "next/dist/server/request/search-params";
@@ -26,6 +26,11 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
     redirect(`/pengguna/booking/success?bookingId=${booking.id}`);
   }
 
+  const { fullName: userFullname } = await prisma.user.findUniqueOrThrow({
+    where: { id: user.id },
+    select: { fullName: true },
+  });
+
   return (
     <div className="mx-auto max-w-4xl">
       <Card>
@@ -37,7 +42,7 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
             user={user}
           />
 
-          <PlayerClient user={user} booking={booking} />
+          <PlayerClient userFullname={userFullname} booking={booking} />
         </CardContent>
       </Card>
     </div>

@@ -7,17 +7,19 @@ import { useRouter } from "next/navigation";
 import DynamicInputList, {
   type DynamicInputListRef,
 } from "./dynamic-input-list";
-import type { UserJwtPayload } from "@/lib/server-auth";
 import { setPlayersToBooking, type Booking } from "@/app/actions/booking";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
 interface PlayerClientProps {
-  user: UserJwtPayload;
+  userFullname: string;
   booking: Booking;
 }
 
-export default function PlayerClient({ user, booking }: PlayerClientProps) {
+export default function PlayerClient({
+  userFullname,
+  booking,
+}: PlayerClientProps) {
   const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -67,7 +69,12 @@ export default function PlayerClient({ user, booking }: PlayerClientProps) {
   return (
     <>
       <div className="mb-6 grid grid-cols-2 gap-4">
-        <DynamicInputList ref={playerListRef} placeholder="Player">
+        <DynamicInputList
+          ref={playerListRef}
+          placeholder="Player"
+          defaultValues={[userFullname, ""]}
+          maxValues={booking.field.capacity}
+        >
           <p className="text-sm font-medium leading-none">
             Player's full name list
           </p>

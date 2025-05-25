@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 
 type DynamicInputListProps = PropsWithChildren<{
   placeholder: string;
+  defaultValues?: string[];
+  maxValues?: number;
 }>;
 
 export interface DynamicInputListRef {
@@ -16,8 +18,11 @@ export interface DynamicInputListRef {
 }
 
 const DynamicInputList = forwardRef<DynamicInputListRef, DynamicInputListProps>(
-  ({ placeholder, children }, ref) => {
-    const [inputs, setInputs] = useState([""]);
+  (
+    { placeholder, defaultValues = [""], maxValues = Infinity, children },
+    ref,
+  ) => {
+    const [inputs, setInputs] = useState(defaultValues);
     const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
     useImperativeHandle(ref, () => ({
@@ -31,7 +36,11 @@ const DynamicInputList = forwardRef<DynamicInputListRef, DynamicInputListProps>(
       newInputs[index] = value;
       setInputs(newInputs);
 
-      if (index === inputs.length - 1 && value.trim() !== "") {
+      if (
+        index === inputs.length - 1 &&
+        value.trim() !== "" &&
+        newInputs.length < maxValues
+      ) {
         setInputs([...newInputs, ""]);
       }
     };
