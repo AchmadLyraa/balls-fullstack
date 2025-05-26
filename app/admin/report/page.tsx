@@ -45,8 +45,8 @@ export default async function ReportPage({ searchParams }: ReportPageProps) {
       where: {
         id: fieldId,
         bookingDate: {
-          lte: from,
-          gte: to,
+          gte: from,
+          lt: to,
         },
       },
       select: {
