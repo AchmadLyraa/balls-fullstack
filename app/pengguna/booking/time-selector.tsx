@@ -90,33 +90,38 @@ export default function TimeSelector({
           Select Start Time:
         </label>
         <div className="grid grid-cols-2 gap-2">
-          {startTimes.entries().map(([time, minutes]) => (
-            <Button
-              key={time}
-              variant={selectedStartTime === time ? "default" : "outline"}
-              disabled={minutes < 0}
-              onClick={() => {
-                setSelectedStartTime(time);
+          {startTimes
+            .entries()
+            .map(([time, minutes]) => (
+              <Button
+                key={time}
+                variant={selectedStartTime === time ? "default" : "outline"}
+                disabled={minutes < 0}
+                onClick={() => {
+                  setSelectedStartTime(time);
 
-                let index = startTimeSlots.indexOf(time);
+                  let index = startTimeSlots.indexOf(time);
 
-                do {
-                  const endTimeSlot = endTimeSlots[index];
+                  do {
+                    const endTimeSlot = endTimeSlots[index];
 
-                  if (endTimes.get(endTimeSlot) !== -1) {
-                    setSelectedEndTime(endTimeSlots[index]);
+                    if (endTimes.get(endTimeSlot) !== -1) {
+                      setSelectedEndTime(endTimeSlots[index]);
 
-                    break;
-                  }
-                } while (++index in endTimeSlots);
-              }}
-              className={
-                selectedStartTime === time ? "bg-red-600 hover:bg-red-700" : ""
-              }
-            >
-              {time}
-            </Button>
-          ))}
+                      break;
+                    }
+                  } while (++index in endTimeSlots);
+                }}
+                className={
+                  selectedStartTime === time
+                    ? "bg-red-600 hover:bg-red-700"
+                    : ""
+                }
+              >
+                {time}
+              </Button>
+            ))
+            .toArray()}
         </div>
       </div>
 
