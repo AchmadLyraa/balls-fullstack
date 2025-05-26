@@ -43,7 +43,7 @@ export default async function ReportPage({ searchParams }: ReportPageProps) {
   const [bookings, allFields, fields] = await Promise.all([
     prisma.booking.findMany({
       where: {
-        id: fieldId,
+        fieldId,
         bookingDate: {
           gte: from,
           lt: to,
