@@ -92,7 +92,7 @@ export default function UploadPaymentClient({
             </SelectTrigger>
             <SelectContent>
               {Object.keys(PaymentMethod).map((method) => (
-                <SelectItem value={method}>
+                <SelectItem key={method} value={method}>
                   {snakeCaseToTitleCase(method.toLowerCase())}
                 </SelectItem>
               ))}
