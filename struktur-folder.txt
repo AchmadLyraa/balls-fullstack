@@ -8,17 +8,42 @@
 │   │   └── profile.ts
 │   ├── admin
 │   │   ├── bookings
-│   │   │   ├── components
-│   │   │   │   └── bookings-client.tsx
+│   │   │   ├── bookings-client.tsx
+│   │   │   ├── edit-form.tsx
+│   │   │   ├── filter.tsx
 │   │   │   └── page.tsx
+│   │   ├── fields
+│   │   │   ├── create
+│   │   │   │   ├── field-form.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── [id]
+│   │   │   │   └── edit
+│   │   │   │       ├── field-form.tsx
+│   │   │   │       └── page.tsx
+│   │   │   ├── page.tsx
+│   │   │   └── schema.ts
 │   │   ├── loyalty
-│   │   │   └── page.tsx
+│   │   │   ├── delete-confirmation.tsx
+│   │   │   ├── page.tsx
+│   │   │   ├── redemptions.tsx
+│   │   │   ├── reward-form.tsx
+│   │   │   ├── rewards.tsx
+│   │   │   └── schema.ts
 │   │   ├── report
-│   │   │   └── page.tsx
+│   │   │   ├── filter.tsx
+│   │   │   ├── page.tsx
+│   │   │   └── report-client.tsx
 │   │   ├── transactions
-│   │   │   └── page.tsx
+│   │   │   ├── page.tsx
+│   │   │   └── verify.tsx
+│   │   ├── admin-sidebar.tsx
+│   │   ├── booking-analytics.tsx
 │   │   ├── layout.tsx
 │   │   └── page.tsx
+│   ├── api
+│   │   └── auth
+│   │       └── logout
+│   │           └── route.ts
 │   ├── (auth)
 │   │   ├── forgot-password
 │   │   │   ├── components
@@ -27,22 +52,31 @@
 │   │   ├── login
 │   │   │   ├── components
 │   │   │   │   └── login-form.tsx
+│   │   │   ├── login-form.tsx
 │   │   │   └── page.tsx
 │   │   └── register
 │   │       ├── components
 │   │       │   └── register-form.tsx
-│   │       └── page.tsx
+│   │       ├── page.tsx
+│   │       └── register-form.tsx
 │   ├── pengguna
 │   │   ├── booking
-│   │   │   ├── success
+│   │   │   ├── player
+│   │   │   │   ├── dynamic-input-list.tsx
 │   │   │   │   ├── page.tsx
-│   │   │   │   └── success-client.tsx
+│   │   │   │   └── player-client.tsx
+│   │   │   ├── success
+│   │   │   │   └── page.tsx
 │   │   │   ├── upload-payment
 │   │   │   │   ├── page.tsx
 │   │   │   │   └── upload-payment-client.tsx
 │   │   │   ├── booking-client.tsx
-│   │   │   └── page.tsx
+│   │   │   ├── header.tsx
+│   │   │   ├── page.tsx
+│   │   │   └── time-selector.tsx
 │   │   ├── loyalty
+│   │   │   ├── points
+│   │   │   │   └── page.tsx
 │   │   │   ├── loyalty-client.tsx
 │   │   │   └── page.tsx
 │   │   ├── profil
@@ -56,10 +90,15 @@
 │   │   └── pengguna-header.tsx
 │   ├── super-admin
 │   │   ├── add-admin
-│   │   │   └── page.tsx
+│   │   │   ├── admin-form.tsx
+│   │   │   ├── page.tsx
+│   │   │   └── schema.ts
 │   │   ├── edit-admin
 │   │   │   └── [id]
-│   │   │       └── page.tsx
+│   │   │       ├── admin-form.tsx
+│   │   │       ├── page.tsx
+│   │   │       └── schema.ts
+│   │   ├── admin-list.tsx
 │   │   ├── layout.tsx
 │   │   ├── page.tsx
 │   │   └── super-admin-sidebar.tsx
@@ -67,71 +106,105 @@
 │   ├── layout.tsx
 │   └── page.tsx
 ├── components
-│   ├── accordion.tsx
-│   ├── alert-dialog.tsx
-│   ├── alert.tsx
-│   ├── aspect-ratio.tsx
-│   ├── avatar.tsx
-│   ├── badge.tsx
-│   ├── breadcrumb.tsx
-│   ├── button.tsx
-│   ├── calendar.tsx
-│   ├── card.tsx
-│   ├── carousel.tsx
-│   ├── chart.tsx
-│   ├── checkbox.tsx
-│   ├── collapsible.tsx
-│   ├── command.tsx
-│   ├── context-menu.tsx
-│   ├── dialog.tsx
-│   ├── drawer.tsx
-│   ├── dropdown-menu.tsx
-│   ├── form.tsx
-│   ├── hover-card.tsx
-│   ├── input-otp.tsx
-│   ├── input.tsx
-│   ├── label.tsx
-│   ├── menubar.tsx
-│   ├── navigation-menu.tsx
-│   ├── pagination.tsx
-│   ├── popover.tsx
-│   ├── progress.tsx
-│   ├── radio-group.tsx
-│   ├── resizable.tsx
-│   ├── scroll-area.tsx
-│   ├── select.tsx
-│   ├── separator.tsx
-│   ├── sheet.tsx
-│   ├── sidebar.tsx
-│   ├── skeleton.tsx
-│   ├── slider.tsx
-│   ├── sonner.tsx
-│   ├── switch.tsx
-│   ├── table.tsx
-│   ├── tabs.tsx
-│   ├── textarea.tsx
-│   ├── theme-provider.tsx
-│   ├── toaster.tsx
-│   ├── toast.tsx
-│   ├── toggle-group.tsx
-│   ├── toggle.tsx
-│   └── tooltip.tsx
+│   └── ui
+│       ├── accordion.tsx
+│       ├── alert-dialog.tsx
+│       ├── alert.tsx
+│       ├── aspect-ratio.tsx
+│       ├── avatar.tsx
+│       ├── badge.tsx
+│       ├── breadcrumb.tsx
+│       ├── button.tsx
+│       ├── calendar.tsx
+│       ├── card.tsx
+│       ├── carousel.tsx
+│       ├── chart.tsx
+│       ├── checkbox.tsx
+│       ├── collapsible.tsx
+│       ├── command.tsx
+│       ├── context-menu.tsx
+│       ├── dialog.tsx
+│       ├── drawer.tsx
+│       ├── dropdown-menu.tsx
+│       ├── form.tsx
+│       ├── hover-card.tsx
+│       ├── image-drag-and-drop.tsx
+│       ├── input-otp.tsx
+│       ├── input.tsx
+│       ├── label.tsx
+│       ├── menubar.tsx
+│       ├── navigation-menu.tsx
+│       ├── pagination.tsx
+│       ├── popover.tsx
+│       ├── progress.tsx
+│       ├── radio-group.tsx
+│       ├── resizable.tsx
+│       ├── scroll-area.tsx
+│       ├── select.tsx
+│       ├── separator.tsx
+│       ├── sheet.tsx
+│       ├── sidebar.tsx
+│       ├── skeleton.tsx
+│       ├── slider.tsx
+│       ├── sonner.tsx
+│       ├── switch.tsx
+│       ├── table.tsx
+│       ├── tabs.tsx
+│       ├── textarea.tsx
+│       ├── theme-provider.tsx
+│       ├── toaster.tsx
+│       ├── toast.tsx
+│       ├── toggle-group.tsx
+│       ├── toggle.tsx
+│       └── tooltip.tsx
 ├── hooks
 │   ├── use-mobile.tsx
 │   └── use-toast.ts
 ├── lib
 │   ├── auth.ts
+│   ├── server-auth.ts
 │   └── utils.ts
 ├── prisma
 │   ├── migrations
-│   │   ├── 20250512173358_init
+│   │   ├── 20250520141727_init
 │   │   │   └── migration.sql
-│   │   ├── 20250512180530_init
+│   │   ├── 20250525094321_init
+│   │   │   └── migration.sql
+│   │   ├── 20250525134550_init
 │   │   │   └── migration.sql
 │   │   └── migration_lock.toml
 │   ├── schema.prisma
 │   └── seed.ts
 ├── public
+│   ├── content
+│   │   └── loyalty
+│   │       ├── cmb3cgz9f0007oyyjmx1h87cp.webp
+│   │       ├── cmb3l9szi0006oythnvj2r0p3.webp
+│   │       └── cmb3rgc6l0008oywnf9szr2ga.webp
+│   ├── user-content
+│   │   └── booking
+│   │       └── payment
+│   │           ├── cmb3csr2w0002oy3jcsyjmetn.webp
+│   │           ├── cmb3dlxpv000ioy3jb3sk2ybd.webp
+│   │           ├── cmb3m7h2w0002oyxdx997u7ax.webp
+│   │           ├── cmb3mv2vn000foyxdxz53ocrk.webp
+│   │           ├── cmb3nehap000woyxd0rp3230n.webp
+│   │           ├── cmb3nvbe6001foyxdynqe6ygy.webp
+│   │           ├── cmb3ocb2j0009oy1alnwbmtrk.webp
+│   │           ├── cmb3pm9l6000voy1ad5skykli.webp
+│   │           ├── cmb3s1quu0001oyxy7182epun.webp
+│   │           ├── cmb3sw2qa001eoyxy76hd32mq.webp
+│   │           ├── cmb3tq7e10001oywevngz48qo.webp
+│   │           ├── cmb3u0kt90001oyvadm6he53u.webp
+│   │           ├── cmb3u6qbn0006oyvadfrhqwja.webp
+│   │           ├── cmb3ukg870001oye4pwnmuxe7.webp
+│   │           ├── cmb48h0t30003oyr5hzeh9cdp.webp
+│   │           └── cmb48nero000boyr54cwtyuuj.webp
+│   ├── BallsLogo.png
+│   ├── BASland.jpg
+│   ├── BASlogo.png
+│   ├── bola.png
+│   ├── lapangan.png
 │   ├── placeholder.jpg
 │   ├── placeholder-logo.png
 │   ├── placeholder-logo.svg
@@ -143,6 +216,7 @@
 ├── next-env.d.ts
 ├── package.json
 ├── pnpm-lock.yaml
+├── pnpm-workspace.yaml
 ├── postcss.config.mjs
 ├── readme.md
 ├── readme.pdf
@@ -150,4 +224,4 @@
 ├── tailwind.config.ts
 └── tsconfig.json
 
-35 directories, 116 files
+50 directories, 175 files
