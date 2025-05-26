@@ -93,8 +93,10 @@ export default function EditForm({
             <SelectValue placeholder="New status" />
           </SelectTrigger>
           <SelectContent>
-            {selected.status === "CONFIRMED" && bookingHasPassed && (
-              <SelectItem value="COMPLETED">Completed</SelectItem>
+            {selected.status === "CONFIRMED" && (
+              <SelectItem value="COMPLETED" disabled={!bookingHasPassed}>
+                Completed
+              </SelectItem>
             )}
             <SelectItem value="CANCELED">Canceled</SelectItem>
           </SelectContent>
