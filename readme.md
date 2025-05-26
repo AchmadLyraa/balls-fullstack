@@ -22,7 +22,6 @@ A comprehensive full-stack web application for managing football field bookings,
 - **Flexible Time Slots**: Book fields for 1-8 hours with custom time ranges
 - **Multi-Player Support**: Add multiple players to bookings
 - **Booking Lifecycle**: Complete status tracking (Unpaid → Pending → Confirmed → Completed)
-- **Payment Proof Upload**: Image upload with automatic WebP conversion
 - **Conflict Prevention**: Automatic booking overlap detection
 
 ### 🎯 Loyalty & Rewards Program
