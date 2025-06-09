@@ -1,3 +1,4 @@
+//app/pengguna/loyalty/loyalty-client.tsx
 "use client";
 
 import { useState } from "react";

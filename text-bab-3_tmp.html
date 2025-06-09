@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>text-bab-3.md</title>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+    
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+html,footer,header{
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Custom MD PDF CSS
+ */
+html,footer,header{
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+
+ }
+body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+<link rel="stylesheet" href="file:///home/achmad/Documents/Semester%204%20Path/PROWEB/Tubes/borneo-anfield-2.1/R%3A%5C2.Travail%5C1.Enseignement%5CCours%5C_1.Outils%5C2.Developpement%5C1.SCSS%5Cmain.css" type="text/css"><link rel="stylesheet" href="file:///home/achmad/Documents/Semester%204%20Path/PROWEB/Tubes/borneo-anfield-2.1/D%3A%5Crdaros%5CCours%5C_1.Outils%5C2.Developpement%5C1.SCSS%5Cmain.css" type="text/css">
+</head>
+
+<body>
+    <h1 id="bab-iii">BAB III</h1>
+<h1 id="perancangan-rinci">PERANCANGAN RINCI</h1>
+<h2 id="pengujian-unit">Pengujian Unit</h2>
+<h3 id="algoritma-register-pelanggan-algoballs001">Algoritma Register Pelanggan (ALGO_BALLS_001)</h3>
+<p><strong>Nama Kelas</strong>: Authentication<br>
+<strong>Nama Operasi</strong>: registerUser()</p>
+<p><strong>Tabel 3.1 Algoritma Register Pelanggan</strong><br>
+```<br>
+Public function registerUser() {<br>
+IF (submit)<br>
+THEN<br>
+IF(registerUser)<br>
+THEN<br>
+value = Read(username, email, password, confirmPassword, fullName, phoneNumber)<br>
+IF(value != null AND password == confirmPassword)<br>
+THEN<br>
+existingUser = prisma.user.findFirst({<br>
+where: { OR: [{ username }, { email }] }<br>
+})<br>
+IF(existingUser == null)<br>
+THEN<br>
+hashedPassword = bcrypt.hash(password, 10)<br>
+newUser = prisma.user.create({<br>
+data: { username, email, password: hashedPassword, fullName, phoneNumber, role: 'CUSTOMER' }<br>
+})<br>
+print 'Registration successful'<br>
+redirect('/login')<br>
+ELSE<br>
+THEN<br>
+print('Username or email already exists')<br>
+redirect('/register')<br>
+ENDIF<br>
+ELSE<br>
+THEN<br>
+print('Invalid data or passwords do not match')<br>
+redirect('/register')<br>
+ENDIF<br>
+ELSE<br>
+THEN<br>
+print 'Registration data incomplete'<br>
+load view('/register')<br>
+ENDIF<br>
+ELSE<br>
+THEN<br>
+print 'Form not submitted'<br>
+load view('register')<br>
+ENDIF<br>
+}<br>
+```</p>
+<p><strong>Flow graph:</strong></p>
+<p>Gambar 3.1 Flow Graph Register Pelanggan</p>
+<p><strong>Jalur independen:</strong><br>
+1). 1 – 9 - 10<br>
+2). 1 – 2 – 7 – 8 – 10<br>
+3). 1 - 2 - 3 - 6 - 8 - 10<br>
+4). 1 - 2 - 3 - 4 - 6 - 8 - 10</p>
+<p><strong>Perhitungan Cyclomatic Complexity / V(G):</strong></p>
+<ul>
+<li>V(G) = 4 Region</li>
+<li>V(G) = E – N + 2 = 12 – 10 + 2 = 4</li>
+<li>V(G) = P + 1 = 3 + 1 = 4</li>
+</ul>
+<p><strong>Test Case &amp; Hasil:</strong></p>
+<p><strong>Tabel 3.2 Test case dan hasil algoritma Register Pelanggan</strong></p>
+<table>
+<thead>
+<tr>
+<th>No</th>
+<th>No. Jalur</th>
+<th>Data Input</th>
+<th>Expected Result</th>
+<th>Result</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>Form register tidak tersubmit</td>
+<td>Menampilkan halaman register secara tetap</td>
+<td>Menampilkan halaman register secara tetap</td>
+<td>Valid</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2</td>
+<td>Form register tidak terisi lengkap</td>
+<td>Menampilkan pesan error &quot;All fields are required&quot;</td>
+<td>Menampilkan pesan error &quot;All fields are required&quot;</td>
+<td>Valid</td>
+</tr>
+<tr>
+<td>3</td>
+<td>3</td>
+<td>Form register terisi lengkap tetapi username/email sudah ada</td>
+<td>Menampilkan pesan error &quot;Username or email already exists&quot;</td>
+<td>Menampilkan pesan error &quot;Username or email already exists&quot;</td>
+<td>Valid</td>
+</tr>
+<tr>
+<td>4</td>
+<td>4</td>
+<td>Form register terisi lengkap, data valid dan tersubmit</td>
+<td>Menyimpan data user ke database &amp; mengalihkan ke halaman login</td>
+<td>Menyimpan data user ke database &amp; mengalihkan ke halaman login</td>
+<td>Valid</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="algoritma-login-akun-algoballs002">Algoritma Login Akun (ALGO_BALLS_002)</h3>
+<p><strong>Nama Kelas</strong>: Authentication<br>
+<strong>Nama Operasi</strong>: loginUser()</p>
+<p><strong>Tabel 3.3 Algoritma Login Akun</strong><br>
+```<br>
+Public function loginUser() {<br>
+IF (submit)<br>
+THEN<br>
+IF(loginUser)<br>
+THEN<br>
+value = Read(emailOrUsername, password)<br>
+IF(value != null)<br>
+THEN<br>
+user = prisma.user.findFirst({<br>
+where: { OR: [{ email: emailOrUsername }, { username: emailOrUsername }] }<br>
+})<br>
+IF(user != null)<br>
+THEN<br>
+isPasswordValid = bcrypt.compare(password, user.password)<br>
+IF(isPasswordValid)<br>
+THEN<br>
+token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET)<br>
+cookies.set('auth-token', token)<br>
+print 'Login successful'<br>
+IF(user.role == 'CUSTOMER')<br>
+redirect('/pengguna')<br>
+ELSE IF(user.role == 'ADMIN')<br>
+redirect('/admin')<br>
+ELSE IF(user.role == 'SUPER_ADMIN')<br>
+redirect('/super-admin')<br>
+ENDIF<br>
+ELSE<br>
+print('Invalid credentials')<br>
+redirect('/login')<br>
+ENDIF<br>
+ELSE<br>
+print('Invalid credentials')<br>
+redirect('/login')<br>
+ENDIF<br>
+ELSE<br>
+THEN<br>
+print('Email/username and password are required')<br>
+redirect('/login')<br>
+ENDIF<br>
+ELSE<br>
+THEN<br>
+print 'Login data incomplete'<br>
+load view('/login')<br>
+ENDIF<br>
+ELSE<br>
+THEN<br>
+print 'Form not submitted'<br>
+load view('login')<br>
+ENDIF<br>
+}<br>
+```</p>
+<p><strong>Flow graph:</strong></p>
+<p>Gambar 3.2 Flow Graph Login Akun</p>
+<p><strong>Jalur independen:</strong><br>
+1). 1 – 11 - 12<br>
+2). 1 – 2 – 9 – 10 – 12<br>
+3). 1 - 2 - 3 - 8 - 10 - 12<br>
+4). 1 - 2 - 3 - 4 - 7 - 10 - 12<br>
+5). 1 - 2 - 3 - 4 - 5 - 6 - 10 - 12</p>
+<p><strong>Perhitungan Cyclomatic Complexity / V(G):</strong></p>
+<ul>
+<li>V(G) = 5 Region</li>
+<li>V(G) = E – N + 2 = 15 – 12 + 2 = 5</li>
+<li>V(G) = P + 1 = 4 + 1 = 5</li>
+</ul>
+<p><strong>Test Case &amp; Hasil:</strong></p>
+<p><strong>Tabel 3.4 Test case dan hasil algoritma Login Akun</strong></p>
+<table>
+<thead>
+<tr>
+<th>No</th>
+<th>No. Jalur</th>
+<th>Data Input</th>
+<th>Expected Result</th>
+<th>Result</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>Form login tidak tersubmit</td>
+<td>Menampilkan halaman login secara tetap</td>
+<td>Menampilkan halaman login secara tetap</td>
+<td>Valid</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2</td>
+<td>Form login tidak terisi lengkap</td>
+<td>Menampilkan pesan error &quot;Email/username and password are required&quot;</td>
+<td>Menampilkan pesan error &quot;Email/username and password are required&quot;</td>
+<td>Valid</td>
+</tr>
+<tr>
+<td>3</td>
+<td>3</td>
+<td>Form login terisi lengkap tetapi user tidak ditemukan</td>
+<td>Menampilkan pesan error &quot;Invalid credentials&quot;</td>
+<td>Menampilkan pesan error &quot;Invalid credentials&quot;</td>
+<td>Valid</td>
+</tr>
+<tr>
+<td>4</td>
+<td>4</td>
+<td>Form login terisi lengkap tetapi password salah</td>
+<td>Menampilkan pesan error &quot;Invalid credentials&quot;</td>
+<td>Menampilkan pesan error &quot;Invalid credentials&quot;</td>
+<td>Valid</td>
+</tr>
+<tr>
+<td>5</td>
+<td>5</td>
+<td>Form login terisi lengkap, kredensial valid dan tersubmit</td>
+<td>Login berhasil &amp; mengalihkan ke dashboard sesuai role</td>
+<td>Login berhasil &amp; mengalihkan ke dashboard sesuai role</td>
+<td>Valid</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="algoritma-booking-lapangan-algoballs003">Algoritma Booking Lapangan (ALGO_BALLS_003)</h3>
+<p><strong>Nama Kelas</strong>: Booking<br>
+<strong>Nama Operasi</strong>: createBooking()</p>
+<p><strong>Tabel 3.5 Algoritma Booking Lapangan</strong><br>
+```<br>
+Public function createBooking() {<br>
+IF (submit)<br>
+THEN<br>
+IF(createBooking)<br>
+THEN<br>
+value = Read(fieldId, bookingDate, startTime, endTime)<br>
+IF(value != null AND startTime &lt; endTime)<br>
+THEN<br>
+conflictBooking = prisma.booking.findFirst({<br>
+where: {<br>
+fieldId: fieldId,<br>
+bookingDate: bookingDate,<br>
+OR: [<br>
+{ startTime: { lte: startTime }, endTime: { gt: startTime } },<br>
+{ startTime: { lt: endTime }, endTime: { gte: endTime } }<br>
+]<br>
+}<br>
+})<br>
+IF(conflictBooking == null)<br>
+THEN<br>
+duration = calculateDuration(startTime, endTime)<br>
+field = prisma.field.findUnique({ where: { id: fieldId } })<br>
+amount = duration * field.hourlyRate<br>
+booking = prisma.booking.create({<br>
+data: { userId, fieldId, bookingDate, startTime, endTime, duration, amount, status: 'UNPAID' }<br>
+})<br>
+print 'Booking created successfully'<br>
+redirect('/pengguna/booking')<br>
+ELSE<br>
+THEN<br>
+print('Time slot not available')<br>
+redirect('/pengguna/booking')<br>
+ENDIF<br>
+ELSE<br>
+THEN<br>
+print('Invalid booking data')<br>
+redirect('/pengguna/booking')<br>
+ENDIF<br>
+ELSE<br>
+THEN<br>
+print 'Booking data incomplete'<br>
+load view('/pengguna/booking')<br>
+ENDIF<br>
+ELSE<br>
+THEN<br>
+print 'Form not submitted'<br>
+load view('booking')<br>
+ENDIF<br>
+}<br>
+```</p>
+<p><strong>Flow graph:</strong></p>
+<p>Gambar 3.3 Flow Graph Booking Lapangan</p>
+<p><strong>Jalur independen:</strong><br>
+1). 1 – 9 - 10<br>
+2). 1 – 2 – 7 – 8 – 10<br>
+3). 1 - 2 - 3 - 6 - 8 - 10<br>
+4). 1 - 2 - 3 - 4 - 6 - 8 - 10</p>
+<p><strong>Perhitungan Cyclomatic Complexity / V(G):</strong></p>
+<ul>
+<li>V(G) = 4 Region</li>
+<li>V(G) = E – N + 2 = 12 – 10 + 2 = 4</li>
+<li>V(G) = P + 1 = 3 + 1 = 4</li>
+</ul>
+<p><strong>Test Case &amp; Hasil:</strong></p>
+<p><strong>Tabel 3.6 Test case dan hasil algoritma Booking Lapangan</strong></p>
+<table>
+<thead>
+<tr>
+<th>No</th>
+<th>No. Jalur</th>
+<th>Data Input</th>
+<th>Expected Result</th>
+<th>Result</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>Form booking tidak tersubmit</td>
+<td>Menampilkan halaman booking secara tetap</td>
+<td>Menampilkan halaman booking secara tetap</td>
+<td>Valid</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2</td>
+<td>Form booking tidak terisi lengkap</td>
+<td>Menampilkan pesan error &quot;Booking data incomplete&quot;</td>
+<td>Menampilkan pesan error &quot;Booking data incomplete&quot;</td>
+<td>Valid</td>
+</tr>
+<tr>
+<td>3</td>
+<td>3</td>
+<td>Form booking terisi lengkap tetapi waktu konflik</td>
+<td>Menampilkan pesan error &quot;Time slot not available&quot;</td>
+<td>Menampilkan pesan error &quot;Time slot not available&quot;</td>
+<td>Valid</td>
+</tr>
+<tr>
+<td>4</td>
+<td>4</td>
+<td>Form booking terisi lengkap, data valid dan tersubmit</td>
+<td>Menyimpan booking ke database &amp; mengalihkan ke halaman booking</td>
+<td>Menyimpan booking ke database &amp; mengalihkan ke halaman booking</td>
+<td>Valid</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="algoritma-upload-bukti-pembayaran-algoballs004">Algoritma Upload Bukti Pembayaran (ALGO_BALLS_004)</h3>
+<p><strong>Nama Kelas</strong>: Payment<br>
+<strong>Nama Operasi</strong>: uploadPaymentProof()</p>
+<p><strong>Tabel 3.7 Algoritma Upload Bukti Pembayaran</strong><br>
+```<br>
+Public function uploadPaymentProof() {<br>
+IF (submit)<br>
+THEN<br>
+IF(uploadPaymentProof)<br>
+THEN<br>
+value = Read(bookingId, paymentMethod, proofImage)<br>
+IF(value != null AND proofImage.type.includes('image'))<br>
+THEN<br>
+booking = prisma.booking.findUnique({ where: { id: bookingId } })<br>
+IF(booking != null AND booking.status == 'UNPAID')<br>
+THEN<br>
+fileName = generateFileName(proofImage)<br>
+optimizedImage = sharp(proofImage).webp().toBuffer()<br>
+saveFile(fileName, optimizedImage)<br>
+payment = prisma.payment.create({<br>
+data: { bookingId, paymentMethod, proofImage: fileName, status: 'PENDING' }<br>
+})<br>
+prisma.booking.update({<br>
+where: { id: bookingId },<br>
+data: { status: 'PENDING' }<br>
+})<br>
+print 'Payment proof uploaded successfully'<br>
+redirect('/pengguna/transactions')<br>
+ELSE<br>
+THEN<br>
+print('Invalid booking or booking already paid')<br>
+redirect('/pengguna/transactions')<br>
+ENDIF<br>
+ELSE<br>
+THEN<br>
+print('Invalid file or payment data')<br>
+redirect('/pengguna/transactions')<br>
+ENDIF<br>
+ELSE<br>
+THEN<br>
+print 'Payment data incomplete'<br>
+load view('/pengguna/transactions')<br>
+ENDIF<br>
+ELSE<br>
+THEN<br>
+print 'Form not submitted'<br>
+load view('upload-payment')<br>
+ENDIF<br>
+}<br>
+```</p>
+<p><strong>Flow graph:</strong></p>
+<p>Gambar 3.4 Flow Graph Upload Bukti Pembayaran</p>
+<p><strong>Jalur independen:</strong><br>
+1). 1 – 9 - 10<br>
+2). 1 – 2 – 7 – 8 – 10<br>
+3). 1 - 2 - 3 - 6 - 8 - 10<br>
+4). 1 - 2 - 3 - 4 - 6 - 8 - 10</p>
+<p><strong>Perhitungan Cyclomatic Complexity / V(G):</strong></p>
+<ul>
+<li>V(G) = 4 Region</li>
+<li>V(G) = E – N + 2 = 12 – 10 + 2 = 4</li>
+<li>V(G) = P + 1 = 3 + 1 = 4</li>
+</ul>
+<p><strong>Test Case &amp; Hasil:</strong></p>
+<p><strong>Tabel 3.8 Test case dan hasil algoritma Upload Bukti Pembayaran</strong></p>
+<table>
+<thead>
+<tr>
+<th>No</th>
+<th>No. Jalur</th>
+<th>Data Input</th>
+<th>Expected Result</th>
+<th>Result</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>Form upload tidak tersubmit</td>
+<td>Menampilkan halaman upload secara tetap</td>
+<td>Menampilkan halaman upload secara tetap</td>
+<td>Valid</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2</td>
+<td>Form upload tidak terisi lengkap</td>
+<td>Menampilkan pesan error &quot;Payment data incomplete&quot;</td>
+<td>Menampilkan pesan error &quot;Payment data incomplete&quot;</td>
+<td>Valid</td>
+</tr>
+<tr>
+<td>3</td>
+<td>3</td>
+<td>Form upload terisi lengkap tetapi booking tidak valid</td>
+<td>Menampilkan pesan error &quot;Invalid booking or booking already paid&quot;</td>
+<td>Menampilkan pesan error &quot;Invalid booking or booking already paid&quot;</td>
+<td>Valid</td>
+</tr>
+<tr>
+<td>4</td>
+<td>4</td>
+<td>Form upload terisi lengkap, data valid dan tersubmit</td>
+<td>Menyimpan bukti pembayaran &amp; mengalihkan ke halaman transaksi</td>
+<td>Menyimpan bukti pembayaran &amp; mengalihkan ke halaman transaksi</td>
+<td>Valid</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="algoritma-crud-program-loyalty-algoballs005">Algoritma CRUD Program Loyalty (ALGO_BALLS_005)</h3>
+<p><strong>Nama Kelas</strong>: LoyaltyProgram<br>
+<strong>Nama Operasi</strong>: createReward()</p>
+<p><strong>Tabel 3.9 Algoritma CRUD Program Loyalty</strong><br>
+```<br>
+Public function createReward() {<br>
+IF (submit)<br>
+THEN<br>
+IF(createReward AND isAdmin)<br>
+THEN<br>
+value = Read(name, description, pointsRequired, image)<br>
+IF(value != null AND pointsRequired &gt; 0)<br>
+THEN<br>
+reward = prisma.loyaltyProgram.create({<br>
+data: { name, description, pointsRequired, image, isActive: true }<br>
+})<br>
+print 'Reward created successfully'<br>
+redirect('/admin/loyalty')<br>
+ELSE<br>
+THEN<br>
+print('Invalid reward data')<br>
+redirect('/admin/loyalty')<br>
+ENDIF<br>
+ELSE<br>
+THEN<br>
+print 'Unauthorized or data incomplete'<br>
+load view('/admin/loyalty')<br>
+ENDIF<br>
+ELSE<br>
+THEN<br>
+print 'Form not submitted'<br>
+load view('create-reward')<br>
+ENDIF<br>
+}<br>
+```</p>
+<p><strong>Flow graph:</strong></p>
+<p>Gambar 3.5 Flow Graph CRUD Program Loyalty</p>
+<p><strong>Jalur independen:</strong><br>
+1). 1 – 7 - 8<br>
+2). 1 – 2 – 5 – 6 – 8<br>
+3). 1 - 2 - 3 - 5 - 6 - 8<br>
+4). 1 - 2 - 3 - 4 - 6 - 8</p>
+<p><strong>Perhitungan Cyclomatic Complexity / V(G):</strong></p>
+<ul>
+<li>V(G) = 4 Region</li>
+<li>V(G) = E – N + 2 = 10 – 8 + 2 = 4</li>
+<li>V(G) = P + 1 = 3 + 1 = 4</li>
+</ul>
+<p><strong>Test Case &amp; Hasil:</strong></p>
+<p><strong>Tabel 3.10 Test case dan hasil algoritma CRUD Program Loyalty</strong></p>
+<table>
+<thead>
+<tr>
+<th>No</th>
+<th>No. Jalur</th>
+<th>Data Input</th>
+<th>Expected Result</th>
+<th>Result</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>Form reward tidak tersubmit</td>
+<td>Menampilkan halaman create reward secara tetap</td>
+<td>Menampilkan halaman create reward secara tetap</td>
+<td>Valid</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2</td>
+<td>Form reward tidak terisi lengkap atau user bukan admin</td>
+<td>Menampilkan pesan error &quot;Unauthorized or data incomplete&quot;</td>
+<td>Menampilkan pesan error &quot;Unauthorized or data incomplete&quot;</td>
+<td>Valid</td>
+</tr>
+<tr>
+<td>3</td>
+<td>3</td>
+<td>Form reward terisi lengkap tetapi data tidak valid</td>
+<td>Menampilkan pesan error &quot;Invalid reward data&quot;</td>
+<td>Menampilkan pesan error &quot;Invalid reward data&quot;</td>
+<td>Valid</td>
+</tr>
+<tr>
+<td>4</td>
+<td>4</td>
+<td>Form reward terisi lengkap, data valid dan tersubmit</td>
+<td>Menyimpan reward ke database &amp; mengalihkan ke halaman loyalty</td>
+<td>Menyimpan reward ke database &amp; mengalihkan ke halaman loyalty</td>
+<td>Valid</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="algoritma-penukaran-loyalty-poin-oleh-pelanggan-algoballs006">Algoritma Penukaran Loyalty Poin oleh Pelanggan (ALGO_BALLS_006)</h3>
+<p><strong>Nama Kelas</strong>: LoyaltyRedemption<br>
+<strong>Nama Operasi</strong>: redeemPoints()</p>
+<p><strong>Tabel 3.11 Algoritma Penukaran Loyalty Poin oleh Pelanggan</strong></p>
+<pre class="hljs"><code><div>Public function redeemPoints() {
+    IF (submit)
+        THEN 
+            IF(redeemPoints)
+                THEN
+                value = Read(userId, rewardId)
+                IF(value != null)
+                    THEN
+                    userPoints = prisma.userPoint.findFirst({
+                        where: { userId: userId, isActive: true }
+                    })
+                    reward = prisma.loyaltyProgram.findUnique({
+                        where: { id: rewardId }
+                    })
+                    IF(userPoints != null AND reward != null)
+                        THEN
+                        IF(userPoints.points &gt;= reward.pointsRequired)
+                            THEN
+                            newPoints = userPoints.points - reward.pointsRequired
+                            prisma.userPoint.update({
+                                where: { id: userPoints.id },
+                                data: { points: newPoints }
+                            })
+                            qrCode = generateQRCode(userId, rewardId)
+                            redemption = prisma.redemption.create({
+                                data: { userId, rewardId, pointsUsed: reward.pointsRequired, qrCode, status: 'PENDING' }
+                            })
+                            print 'Points redeemed successfully'
+                            redirect('/pengguna/loyalty')
+                        ELSE
+                            THEN
+                            print('Insufficient points for this reward')
+                            redirect('/pengguna/loyalty')
+                        ENDIF
+                    ELSE
+                        THEN
+                        print('Invalid user points or reward not found')
+                        redirect('/pengguna/loyalty')
+                    ENDIF
+                ELSE
+                    THEN
+                    print('Invalid redemption data')
+                    redirect('/pengguna/loyalty')
+                ENDIF
+            ELSE
+                THEN
+                print 'Redemption data incomplete'
+                load view('/pengguna/loyalty')
+            ENDIF
+    ELSE
+        THEN    
+            print 'Form not submitted'
+            load view('redeem-reward')
+    ENDIF
+}
+</div></code></pre>
+<p><strong>Flow graph:</strong></p>
+<p>Gambar 3.6 Flow Graph Penukaran Loyalty Poin oleh Pelanggan</p>
+<p><strong>Jalur independen:</strong><br>
+1). 1 – 9 - 10<br>
+2). 1 – 2 – 7 – 8 – 10<br>
+3). 1 - 2 - 3 - 6 - 8 - 10<br>
+4). 1 - 2 - 3 - 4 - 5 - 8 - 10<br>
+5). 1 - 2 - 3 - 4 - 5 - 6 - 8 - 10</p>
+<p><strong>Perhitungan Cyclomatic Complexity / V(G):</strong></p>
+<ul>
+<li>V(G) = 5 Region</li>
+<li>V(G) = E – N + 2 = 13 – 10 + 2 = 5</li>
+<li>V(G) = P + 1 = 4 + 1 = 5</li>
+</ul>
+<p><strong>Test Case &amp; Hasil:</strong></p>
+<p><strong>Tabel 3.12 Test case dan hasil algoritma Penukaran Loyalty Poin oleh Pelanggan</strong></p>
+<table>
+<thead>
+<tr>
+<th>No</th>
+<th>No. Jalur</th>
+<th>Data Input</th>
+<th>Expected Result</th>
+<th>Result</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>Form redeem tidak tersubmit</td>
+<td>Menampilkan halaman redeem reward secara tetap</td>
+<td>Menampilkan halaman redeem reward secara tetap</td>
+<td>Valid</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2</td>
+<td>Form redeem tidak terisi lengkap</td>
+<td>Menampilkan pesan error &quot;Redemption data incomplete&quot;</td>
+<td>Menampilkan pesan error &quot;Redemption data incomplete&quot;</td>
+<td>Valid</td>
+</tr>
+<tr>
+<td>3</td>
+<td>3</td>
+<td>Form redeem terisi lengkap tetapi data tidak valid</td>
+<td>Menampilkan pesan error &quot;Invalid redemption data&quot;</td>
+<td>Menampilkan pesan error &quot;Invalid redemption data&quot;</td>
+<td>Valid</td>
+</tr>
+<tr>
+<td>4</td>
+<td>4</td>
+<td>Form redeem terisi lengkap tetapi user/reward tidak ditemukan</td>
+<td>Menampilkan pesan error &quot;Invalid user points or reward not found&quot;</td>
+<td>Menampilkan pesan error &quot;Invalid user points or reward not found&quot;</td>
+<td>Valid</td>
+</tr>
+<tr>
+<td>5</td>
+<td>5</td>
+<td>Form redeem terisi lengkap tetapi poin tidak mencukupi</td>
+<td>Menampilkan pesan error &quot;Insufficient points for this reward&quot;</td>
+<td>Menampilkan pesan error &quot;Insufficient points for this reward&quot;</td>
+<td>Valid</td>
+</tr>
+<tr>
+<td>6</td>
+<td>6</td>
+<td>Form redeem terisi lengkap, poin mencukupi dan tersubmit</td>
+<td>Mengurangi poin user, generate QR code &amp; mengalihkan ke halaman loyalty</td>
+<td>Mengurangi poin user, generate QR code &amp; mengalihkan ke halaman loyalty</td>
+<td>Valid</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="pengujian-validasi">Pengujian Validasi</h2>
+<h3 id="requirement-register-pelanggan-srsf-balls-001">Requirement Register Pelanggan (SRS_F-BALLS-001)</h3>
+<p><strong>Pengujian Register Pelanggan (PV_BALLS_01)</strong></p>
+<p><strong>Test Case</strong>: Semua Field Diisi<br>
+<strong>Prosedur</strong>:</p>
+<ol>
+<li>Pengguna menuju halaman &quot;Register&quot;</li>
+<li>Pengguna mengisi semua field form register pada halaman tersebut</li>
+<li>Pengguna mengklik button &quot;Sign Up&quot; pada form register</li>
+</ol>
+<p><strong>Expected Result</strong>:<br>
+Sistem akan menyimpan data ke dalam database dan sistem akan mengalihkan ke halaman login dengan pesan sukses registrasi.</p>
+<hr>
+<h3 id="requirement-register-pelanggan-srsf-balls-001">Requirement Register Pelanggan (SRS_F-BALLS-001)</h3>
+<p><strong>Pengujian Register Pelanggan (PV_BALLS_02)</strong></p>
+<p><strong>Test Case</strong>: Field Diisi Tidak Lengkap<br>
+<strong>Prosedur</strong>:</p>
+<ol>
+<li>Pengguna menuju halaman &quot;Register&quot;</li>
+<li>Pengguna mengisi field form register pada halaman tersebut tetapi tidak lengkap</li>
+<li>Pengguna mengklik button &quot;Sign Up&quot; pada form register</li>
+</ol>
+<p><strong>Expected Result</strong>:<br>
+Sistem akan menampilkan pesan error &quot;All fields are required&quot; pada field yang belum terisi.</p>
+<hr>
+<h3 id="requirement-login-akun-srsf-balls-002">Requirement Login Akun (SRS_F-BALLS-002)</h3>
+<p><strong>Pengujian Login Akun (PV_BALLS_03)</strong></p>
+<p><strong>Test Case</strong>: Email/Username dan Password Valid<br>
+<strong>Prosedur</strong>:</p>
+<ol>
+<li>Pengguna menuju halaman &quot;Login&quot;</li>
+<li>Pengguna mengisi field email/username dan password pada halaman tersebut</li>
+<li>Pengguna mengklik button &quot;Sign In&quot; pada halaman tersebut</li>
+</ol>
+<p><strong>Expected Result</strong>:<br>
+Sistem akan mengecek data email/username dan password ke database, jika datanya valid, maka sistem akan mengalihkan ke halaman dashboard sesuai role pengguna.</p>
+<hr>
+<h3 id="requirement-login-akun-srsf-balls-002">Requirement Login Akun (SRS_F-BALLS-002)</h3>
+<p><strong>Pengujian Login Akun (PV_BALLS_04)</strong></p>
+<p><strong>Test Case</strong>: Email/Username dan Password Tidak Valid<br>
+<strong>Prosedur</strong>:</p>
+<ol>
+<li>Pengguna menuju halaman &quot;Login&quot;</li>
+<li>Pengguna mengisi field email/username dan password pada halaman tersebut tetapi tidak valid</li>
+<li>Pengguna mengklik button &quot;Sign In&quot; pada halaman tersebut</li>
+</ol>
+<p><strong>Expected Result</strong>:<br>
+Sistem akan mengecek data email/username dan password ke database, jika datanya tidak valid, maka sistem akan menampilkan pesan error &quot;Invalid credentials&quot;.</p>
+<hr>
+<h3 id="requirement-booking-lapangan-srsf-balls-003">Requirement Booking Lapangan (SRS_F-BALLS-003)</h3>
+<p><strong>Pengujian Booking Lapangan (PV_BALLS_05)</strong></p>
+<p><strong>Test Case</strong>: Semua Field Diisi<br>
+<strong>Prosedur</strong>:</p>
+<ol>
+<li>Pelanggan menuju halaman &quot;Booking&quot;</li>
+<li>Pelanggan memilih lapangan yang diinginkan</li>
+<li>Pelanggan mengisi tanggal, waktu mulai, dan waktu selesai</li>
+<li>Pelanggan mengklik button &quot;Create Booking&quot;</li>
+</ol>
+<p><strong>Expected Result</strong>:<br>
+Sistem akan menyimpan data booking ke dalam database dan sistem akan menampilkan pesan bahwa booking berhasil dibuat dengan status UNPAID.</p>
+<hr>
+<h3 id="requirement-booking-lapangan-srsf-balls-003">Requirement Booking Lapangan (SRS_F-BALLS-003)</h3>
+<p><strong>Pengujian Booking Lapangan (PV_BALLS_06)</strong></p>
+<p><strong>Test Case</strong>: Waktu Konflik dengan Booking Lain<br>
+<strong>Prosedur</strong>:</p>
+<ol>
+<li>Pelanggan menuju halaman &quot;Booking&quot;</li>
+<li>Pelanggan memilih lapangan yang sudah dibooking pada waktu tertentu</li>
+<li>Pelanggan mengisi tanggal dan waktu yang sama dengan booking yang sudah ada</li>
+<li>Pelanggan mengklik button &quot;Create Booking&quot;</li>
+</ol>
+<p><strong>Expected Result</strong>:<br>
+Sistem akan menampilkan pesan error &quot;Time slot not available&quot; karena terjadi konflik waktu.</p>
+<hr>
+<h3 id="requirement-upload-bukti-pembayaran-srsf-balls-004">Requirement Upload Bukti Pembayaran (SRS_F-BALLS-004)</h3>
+<p><strong>Pengujian Upload Bukti Pembayaran (PV_BALLS_07)</strong></p>
+<p><strong>Test Case</strong>: File Gambar Valid<br>
+<strong>Prosedur</strong>:</p>
+<ol>
+<li>Pelanggan menuju halaman &quot;Upload Payment Proof&quot;</li>
+<li>Pelanggan mengisi Booking ID yang valid</li>
+<li>Pelanggan memilih metode pembayaran</li>
+<li>Pelanggan mengupload file gambar bukti pembayaran</li>
+<li>Pelanggan mengklik button &quot;Upload&quot;</li>
+</ol>
+<p><strong>Expected Result</strong>:<br>
+Sistem akan menyimpan bukti pembayaran ke database dan mengubah status booking menjadi PENDING untuk menunggu verifikasi admin.</p>
+<hr>
+<h3 id="requirement-upload-bukti-pembayaran-srsf-balls-004">Requirement Upload Bukti Pembayaran (SRS_F-BALLS-004)</h3>
+<p><strong>Pengujian Upload Bukti Pembayaran (PV_BALLS_08)</strong></p>
+<p><strong>Test Case</strong>: File Bukan Gambar<br>
+<strong>Prosedur</strong>:</p>
+<ol>
+<li>Pelanggan menuju halaman &quot;Upload Payment Proof&quot;</li>
+<li>Pelanggan mengisi Booking ID yang valid</li>
+<li>Pelanggan memilih metode pembayaran</li>
+<li>Pelanggan mengupload file yang bukan gambar (PDF, DOC, dll)</li>
+<li>Pelanggan mengklik button &quot;Upload&quot;</li>
+</ol>
+<p><strong>Expected Result</strong>:<br>
+Sistem akan menampilkan pesan error &quot;Invalid file type. Please upload an image file&quot; karena file yang diupload bukan gambar.</p>
+<hr>
+<h3 id="requirement-melihat-riwayat-booking-srsf-balls-005">Requirement Melihat Riwayat Booking (SRS_F-BALLS-005)</h3>
+<p><strong>Pengujian Melihat Riwayat Booking (PV_BALLS_09)</strong></p>
+<p><strong>Test Case</strong>: Pelanggan Memiliki Booking<br>
+<strong>Prosedur</strong>:</p>
+<ol>
+<li>Pelanggan login ke sistem</li>
+<li>Pelanggan menuju halaman &quot;Transactions&quot; atau &quot;Booking History&quot;</li>
+<li>Sistem menampilkan daftar booking pelanggan</li>
+</ol>
+<p><strong>Expected Result</strong>:<br>
+Sistem akan menampilkan semua riwayat booking pelanggan dengan informasi lengkap seperti tanggal, waktu, lapangan, status, dan total pembayaran.</p>
+<hr>
+<h3 id="requirement-melihat-poin-loyalty-srsf-balls-006">Requirement Melihat Poin Loyalty (SRS_F-BALLS-006)</h3>
+<p><strong>Pengujian Melihat Poin Loyalty (PV_BALLS_10)</strong></p>
+<p><strong>Test Case</strong>: Pelanggan Memiliki Poin<br>
+<strong>Prosedur</strong>:</p>
+<ol>
+<li>Pelanggan login ke sistem</li>
+<li>Pelanggan menuju halaman &quot;Loyalty&quot;</li>
+<li>Sistem menampilkan total poin yang dimiliki pelanggan</li>
+</ol>
+<p><strong>Expected Result</strong>:<br>
+Sistem akan menampilkan total poin loyalty pelanggan dan riwayat perolehan poin dari booking yang telah completed.</p>
+<hr>
+<h3 id="requirement-tukar-poin-loyalty-srsf-balls-007">Requirement Tukar Poin Loyalty (SRS_F-BALLS-007)</h3>
+<p><strong>Pengujian Tukar Poin Loyalty (PV_BALLS_11)</strong></p>
+<p><strong>Test Case</strong>: Poin Mencukupi untuk Reward<br>
+<strong>Prosedur</strong>:</p>
+<ol>
+<li>Pelanggan menuju halaman &quot;Loyalty&quot;</li>
+<li>Pelanggan memilih reward yang diinginkan</li>
+<li>Pelanggan mengklik button &quot;Redeem&quot; pada reward tersebut</li>
+<li>Sistem mengecek apakah poin pelanggan mencukupi</li>
+</ol>
+<p><strong>Expected Result</strong>:<br>
+Sistem akan mengurangi poin pelanggan sesuai requirement reward dan memberikan QR code untuk klaim reward.</p>
+<hr>
+<h3 id="requirement-tukar-poin-loyalty-srsf-balls-007">Requirement Tukar Poin Loyalty (SRS_F-BALLS-007)</h3>
+<p><strong>Pengujian Tukar Poin Loyalty (PV_BALLS_12)</strong></p>
+<p><strong>Test Case</strong>: Poin Tidak Mencukupi untuk Reward<br>
+<strong>Prosedur</strong>:</p>
+<ol>
+<li>Pelanggan menuju halaman &quot;Loyalty&quot;</li>
+<li>Pelanggan memilih reward yang membutuhkan poin lebih banyak dari yang dimiliki</li>
+<li>Pelanggan mengklik button &quot;Redeem&quot; pada reward tersebut</li>
+</ol>
+<p><strong>Expected Result</strong>:<br>
+Sistem akan menampilkan pesan error &quot;Insufficient points. You need X more points to redeem this reward&quot;.</p>
+<hr>
+<h3 id="requirement-crud-booking-oleh-admin-srsf-balls-009">Requirement CRUD Booking oleh Admin (SRS_F-BALLS-009)</h3>
+<p><strong>Pengujian CRUD Booking oleh Admin (PV_BALLS_13)</strong></p>
+<p><strong>Test Case</strong>: Admin Mengubah Status Booking<br>
+<strong>Prosedur</strong>:</p>
+<ol>
+<li>Admin login ke sistem</li>
+<li>Admin menuju halaman &quot;Bookings&quot;</li>
+<li>Admin memilih booking yang akan diubah statusnya</li>
+<li>Admin mengubah status booking (PENDING → CONFIRMED)</li>
+<li>Admin mengklik button &quot;Update Status&quot;</li>
+</ol>
+<p><strong>Expected Result</strong>:<br>
+Sistem akan mengubah status booking sesuai pilihan admin dan menyimpan perubahan ke database.</p>
+<hr>
+<h3 id="requirement-crud-program-loyalty-oleh-admin-srsf-balls-011">Requirement CRUD Program Loyalty oleh Admin (SRS_F-BALLS-011)</h3>
+<p><strong>Pengujian CRUD Program Loyalty oleh Admin (PV_BALLS_14)</strong></p>
+<p><strong>Test Case</strong>: Admin Menambah Reward Baru<br>
+<strong>Prosedur</strong>:</p>
+<ol>
+<li>Admin login ke sistem</li>
+<li>Admin menuju halaman &quot;Loyalty Program&quot;</li>
+<li>Admin mengklik button &quot;Add New Reward&quot;</li>
+<li>Admin mengisi semua field reward (nama, deskripsi, poin required, gambar)</li>
+<li>Admin mengklik button &quot;Create Reward&quot;</li>
+</ol>
+<p><strong>Expected Result</strong>:<br>
+Sistem akan menyimpan reward baru ke database dan menampilkan reward tersebut di katalog loyalty program.</p>
+<hr>
+<h3 id="requirement-crud-program-loyalty-oleh-admin-srsf-balls-011">Requirement CRUD Program Loyalty oleh Admin (SRS_F-BALLS-011)</h3>
+<p><strong>Pengujian CRUD Program Loyalty oleh Admin (PV_BALLS_15)</strong></p>
+<p><strong>Test Case</strong>: Admin Menambah Reward dengan Field Kosong<br>
+<strong>Prosedur</strong>:</p>
+<ol>
+<li>Admin login ke sistem</li>
+<li>Admin menuju halaman &quot;Loyalty Program&quot;</li>
+<li>Admin mengklik button &quot;Add New Reward&quot;</li>
+<li>Admin mengisi field reward tetapi tidak lengkap</li>
+<li>Admin mengklik button &quot;Create Reward&quot;</li>
+</ol>
+<p><strong>Expected Result</strong>:<br>
+Sistem akan menampilkan pesan error &quot;Please fill out this field!&quot; pada field yang belum terisi.</p>
+<hr>
+<h3 id="requirement-laporan-transaksi-srsf-balls-015">Requirement Laporan Transaksi (SRS_F-BALLS-015)</h3>
+<p><strong>Pengujian Laporan Transaksi (PV_BALLS_16)</strong></p>
+<p><strong>Test Case</strong>: Admin Melihat Laporan dengan Data Tersedia<br>
+<strong>Prosedur</strong>:</p>
+<ol>
+<li>Admin login ke sistem</li>
+<li>Admin menuju halaman &quot;Reports&quot;</li>
+<li>Admin memilih periode laporan (tanggal mulai dan tanggal akhir)</li>
+<li>Admin mengklik button &quot;Generate Report&quot;</li>
+</ol>
+<p><strong>Expected Result</strong>:<br>
+Sistem akan menampilkan laporan transaksi dengan data statistik seperti total booking, total revenue, dan grafik tren booking.</p>
+<hr>
+<h3 id="requirement-verifikasi-transaksi-srsf-balls-016">Requirement Verifikasi Transaksi (SRS_F-BALLS-016)</h3>
+<p><strong>Pengujian Verifikasi Transaksi (PV_BALLS_17)</strong></p>
+<p><strong>Test Case</strong>: Admin Memverifikasi Pembayaran Valid<br>
+<strong>Prosedur</strong>:</p>
+<ol>
+<li>Admin login ke sistem</li>
+<li>Admin menuju halaman &quot;Transactions&quot;</li>
+<li>Admin memilih pembayaran dengan status PENDING</li>
+<li>Admin melihat bukti pembayaran yang diupload</li>
+<li>Admin mengklik button &quot;Confirm Payment&quot;</li>
+</ol>
+<p><strong>Expected Result</strong>:<br>
+Sistem akan mengubah status pembayaran menjadi PAID dan status booking menjadi CONFIRMED.</p>
+<hr>
+<h3 id="requirement-verifikasi-transaksi-srsf-balls-016">Requirement Verifikasi Transaksi (SRS_F-BALLS-016)</h3>
+<p><strong>Pengujian Verifikasi Transaksi (PV_BALLS_18)</strong></p>
+<p><strong>Test Case</strong>: Admin Menolak Pembayaran Tidak Valid<br>
+<strong>Prosedur</strong>:</p>
+<ol>
+<li>Admin login ke sistem</li>
+<li>Admin menuju halaman &quot;Transactions&quot;</li>
+<li>Admin memilih pembayaran dengan status PENDING</li>
+<li>Admin melihat bukti pembayaran yang tidak valid</li>
+<li>Admin mengklik button &quot;Reject Payment&quot; dan memberikan catatan</li>
+</ol>
+<p><strong>Expected Result</strong>:<br>
+Sistem akan mengubah status pembayaran menjadi INVALID dan memberikan notifikasi ke pelanggan untuk mengupload ulang bukti pembayaran.</p>
+<hr>
+<h3 id="requirement-crud-admin-oleh-super-admin-srsf-balls-017">Requirement CRUD Admin oleh Super Admin (SRS_F-BALLS-017)</h3>
+<p><strong>Pengujian CRUD Admin oleh Super Admin (PV_BALLS_19)</strong></p>
+<p><strong>Test Case</strong>: Super Admin Menambah Admin Baru<br>
+<strong>Prosedur</strong>:</p>
+<ol>
+<li>Super Admin login ke sistem</li>
+<li>Super Admin menuju halaman &quot;Admin Management&quot;</li>
+<li>Super Admin mengklik button &quot;Add New Admin&quot;</li>
+<li>Super Admin mengisi semua field admin (username, email, password, full name)</li>
+<li>Super Admin mengklik button &quot;Create Admin&quot;</li>
+</ol>
+<p><strong>Expected Result</strong>:<br>
+Sistem akan membuat akun admin baru dengan role ADMIN dan menyimpan data ke database.</p>
+<hr>
+<h3 id="requirement-crud-admin-oleh-super-admin-srsf-balls-017">Requirement CRUD Admin oleh Super Admin (SRS_F-BALLS-017)</h3>
+<p><strong>Pengujian CRUD Admin oleh Super Admin (PV_BALLS_20)</strong></p>
+<p><strong>Test Case</strong>: Super Admin Menambah Admin dengan Field Kosong<br>
+<strong>Prosedur</strong>:</p>
+<ol>
+<li>Super Admin login ke sistem</li>
+<li>Super Admin menuju halaman &quot;Admin Management&quot;</li>
+<li>Super Admin mengklik button &quot;Add New Admin&quot;</li>
+<li>Super Admin mengisi field admin tetapi tidak lengkap</li>
+<li>Super Admin mengklik button &quot;Create Admin&quot;</li>
+</ol>
+<p><strong>Expected Result</strong>:<br>
+Sistem akan menampilkan pesan error &quot;Please fill out this field!&quot; pada field yang belum terisi.</p>
+<hr>
+<h3 id="pengujian-kapasitas-srsnf-balls-002">Pengujian Kapasitas (SRS_NF-BALLS-002)</h3>
+<p><strong>Pengujian Kapasitas (PV_BALLS_21)</strong></p>
+<p><strong>Test Case</strong>: Sistem Menampung Semua Data Yang Masuk<br>
+<strong>Prosedur</strong>:</p>
+<ol>
+<li>Penguji mengakses sistem BALLS</li>
+<li>Penguji menambahkan data booking, user, payment, dan loyalty dalam jumlah besar</li>
+<li>Penguji memantau performa database</li>
+</ol>
+<p><strong>Expected Result</strong>:<br>
+Sistem akan menampung semua data yang dimasukkan ke dalam database tanpa adanya batasan maksimal data dan tetap berfungsi dengan baik.</p>
+<hr>
+<h3 id="pengujian-performa-srsnf-balls-003">Pengujian Performa (SRS_NF-BALLS-003)</h3>
+<p><strong>Pengujian Performa (PV_BALLS_22)</strong></p>
+<p><strong>Test Case</strong>: Sistem Mampu Memberikan Layanan Secara Cepat Selama 2 Detik<br>
+<strong>Prosedur</strong>:</p>
+<ol>
+<li>Penguji mengakses sistem BALLS</li>
+<li>Penguji mencoba semua halaman dan proses yang tersedia pada sistem</li>
+<li>Penguji mengukur waktu loading setiap halaman dan proses</li>
+</ol>
+<p><strong>Expected Result</strong>:<br>
+Sistem akan mengakses per halaman dan proses secara cepat maksimal selama 2 detik saja untuk memberikan user experience yang optimal.</p>
+
+</body>
+
+</html>

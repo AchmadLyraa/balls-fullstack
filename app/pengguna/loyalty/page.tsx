@@ -1,3 +1,4 @@
+//app/pengguna/loyalty/page.tsx
 import { prisma, requireAuth } from "@/lib/server-auth";
 import LoyaltyClient from "./loyalty-client";
 
